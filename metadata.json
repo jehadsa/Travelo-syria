@@ -1,0 +1,6 @@
+{
+  "name": "Travelo Syria",
+  "description": "The premium tourism booking platform for Syria, allowing you to discover and book hotels, cars, and restaurants with highly polished experiences.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
