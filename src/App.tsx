@@ -5,8 +5,8 @@
 
 import traveloLogo from './assets/images/travelo_logo_1780422163382.png';
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Search, Menu, X, Globe, User, Bell, ChevronRight, ChevronLeft, 
+import {
+  Search, Menu, X, Globe, User, Bell, ChevronRight, ChevronLeft,
   MapPin, Star, Bed, Calendar, Phone, Users, Shield, CheckCircle2,
   ListFilter, Sparkles, Trash2, SlidersHorizontal, ArrowLeftCircle, Heart,
   Sun, Moon, LayoutGrid, Hotel, Building, Car, Utensils, Home
@@ -14,8 +14,8 @@ import {
 
 import { Language, User as UserType, Trip, Booking, Notification, ToastMessage } from './types';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  getStoredLanguage, setStoredLanguage, 
+import {
+  getStoredLanguage, setStoredLanguage,
   getStoredUser, setStoredUser,
   getStoredTrips, updateStoredTripBooking,
   getStoredBookings, addStoredBooking,
@@ -71,13 +71,13 @@ export default function App() {
 
   // Active bookings inputs
   const [bookingTrip, setBookingTrip] = useState<Trip | null>(null);
-  
+
   // Generic booking form states
   const [bookingFullName, setBookingFullName] = useState('');
   const [bookingPhone, setBookingPhone] = useState('');
   const [bookingGuests, setBookingGuests] = useState(2);
   const [bookingDays, setBookingDays] = useState(3);
-  
+
   // Hotel specific toggles
   const [hotelNationality, setHotelNationality] = useState<'syrian' | 'tourist' | null>(null);
   const [hotelMaritalStatus, setHotelMaritalStatus] = useState<'single' | 'married_children' | 'married_new' | null>(null);
@@ -240,13 +240,13 @@ export default function App() {
 
   // Scroll Lock effect for overlays and modals (locks main page background scroll)
   useEffect(() => {
-    const isAnyOverlayActive = 
-      isSidebarOpen || 
-      selectedTrip !== null || 
-      bookingTrip !== null || 
-      loginModalOpen || 
-      signupModalOpen || 
-      editProfileOpen || 
+    const isAnyOverlayActive =
+      isSidebarOpen ||
+      selectedTrip !== null ||
+      bookingTrip !== null ||
+      loginModalOpen ||
+      signupModalOpen ||
+      editProfileOpen ||
       authRequiredOpen;
 
     if (isAnyOverlayActive) {
@@ -259,12 +259,12 @@ export default function App() {
       document.body.style.overflow = '';
     };
   }, [
-    isSidebarOpen, 
-    selectedTrip, 
-    bookingTrip, 
-    loginModalOpen, 
-    signupModalOpen, 
-    editProfileOpen, 
+    isSidebarOpen,
+    selectedTrip,
+    bookingTrip,
+    loginModalOpen,
+    signupModalOpen,
+    editProfileOpen,
     authRequiredOpen
   ]);
 
@@ -283,7 +283,7 @@ export default function App() {
   const handleShowToast = (icon: string, titleAr: string, titleEn: string, bodyAr: string, bodyEn: string, color: string) => {
     const id = Math.random().toString(36).slice(2, 9);
     setToasts(prev => [...prev, { id, icon, title: titleAr, titleEn, body: bodyAr, bodyEn, color }]);
-    
+
     // Auto erase toast after 5 seconds
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
@@ -392,7 +392,7 @@ export default function App() {
       family: 'https://images.unsplash.com/photo-1581579438747-1dc8d1e0ca96?auto=format&fit=crop&w=300&q=80',
       contract: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=300&q=80'
     };
-    
+
     if (type === 'id') setUploadedId(responses.id);
     else if (type === 'passport') setUploadedPassport(responses.passport);
     else if (type === 'family') setUploadedFamilyBook(responses.family);
@@ -486,7 +486,7 @@ export default function App() {
         read: false,
         date: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
       };
-      
+
       // Persist welcome simulation notification
       addStoredNotification(acceptNotif);
       if (currentUser && currentUser.email === userMail) {
@@ -507,9 +507,9 @@ export default function App() {
 
   // Dynamic filter query logic
   const filteredTrips = trips.filter(trip => {
-    const isCategoryMatch = selectedCategory === 'all' || 
+    const isCategoryMatch = selectedCategory === 'all' ||
       (selectedCategory === 'favorites' ? favorites.includes(trip.id) : trip.category === selectedCategory);
-    
+
     const isAvailabilityMatch = availabilityFilter === 'all' ||
       (availabilityFilter === 'available' && !trip.isBooked) ||
       (availabilityFilter === 'booked' && trip.isBooked);
@@ -517,7 +517,7 @@ export default function App() {
     const titleField = lang === 'ar' ? trip.title : trip.title_en;
     const descField = lang === 'ar' ? (trip.description || '') : (trip.description_en || '');
     const locationField = lang === 'ar' ? (trip.locationName || '') : (trip.locationName_en || '');
-    
+
     const matchStr = `${titleField} ${descField} ${locationField}`.toLowerCase();
     const isSearchMatch = matchStr.includes(searchQuery.toLowerCase());
 
@@ -725,16 +725,16 @@ export default function App() {
     };
 
     return (
-      <div 
+      <div
         key={trip.id}
         className={`bg-white rounded-[32px] border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 flex flex-col justify-between group ${config.shadowHover}`}
       >
         {/* Header Image box with overlays */}
         <div className="relative h-56 overflow-hidden select-none bg-slate-900 shrink-0">
-          <img 
-            src={trip.image} 
-            alt={title} 
-            loading="lazy" 
+          <img
+            src={trip.image}
+            alt={title}
+            loading="lazy"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
           />
           {/* Elegant Dark Vignette layer */}
@@ -768,8 +768,8 @@ export default function App() {
               toggleFavorite(trip.id);
             }}
             className={`absolute bottom-3 ${isAr ? 'right-3' : 'left-3'} w-8 h-8 rounded-xl backdrop-blur-md border shadow-md transition-all duration-300 cursor-pointer flex items-center justify-center hover:scale-110 active:scale-95 z-10
-              ${favorites.includes(trip.id) 
-                ? 'bg-rose-500 border-rose-600 text-white shadow-rose-500/20 shadow-md' 
+              ${favorites.includes(trip.id)
+                ? 'bg-rose-500 border-rose-600 text-white shadow-rose-500/20 shadow-md'
                 : 'bg-slate-950/45 border-white/10 text-white/90 hover:bg-white hover:text-rose-500 hover:border-white'
               }`}
             title={favorites.includes(trip.id) ? (isAr ? 'إزالة من المفضلة' : 'Remove from favorites') : (isAr ? 'إضافة للمفضلة' : 'Add to favorites')}
@@ -801,7 +801,7 @@ export default function App() {
                 <span className="text-2xl font-black text-slate-900 tracking-tight">
                   ${trip.price}
                 </span>
-                
+
                 {trip.category === 'hotels' && (
                   <span className="text-xs text-slate-400 font-semibold bg-slate-100 px-2 py-0.5 rounded-md">/{isAr ? 'ليلة' : 'night'}</span>
                 )}
@@ -853,13 +853,13 @@ export default function App() {
 
           {/* Interactive Actions Grid */}
           <div className="mt-5 pt-4 border-t border-slate-100 flex items-center gap-2">
-            <button 
+            <button
               onClick={() => handleTriggerBooking(trip)}
               className={`grow py-2.5 px-4 ${config.btnClass} text-white font-black rounded-xl text-xs transition-all duration-300 cursor-pointer shadow-md flex items-center justify-center gap-1 hover:-translate-y-0.5 active:translate-y-0 active:scale-95`}
             >
               <span>{lex.bookNow}</span>
             </button>
-            <button 
+            <button
               onClick={() => { setSelectedTrip(trip); setDetailActiveImgIndex(0); }}
               className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 font-bold rounded-xl text-xs transition-all duration-300 cursor-pointer hover:-translate-y-0.5 active:translate-y-0 active:scale-95 text-center"
             >
@@ -874,7 +874,7 @@ export default function App() {
   if (activePage === 'admin') {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col text-slate-800 antialiased font-sans" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-        <AdminPanel 
+        <AdminPanel
           lang={lang}
           trips={trips}
           setTrips={setTrips}
@@ -889,7 +889,7 @@ export default function App() {
           }}
           showToast={handleShowToast}
         />
-        <Toasts toasts={toasts} setToasts={setToasts} />
+        <Toasts lang={lang} toasts={toasts} onDismiss={handleDismissToast} />
       </div>
     );
   }
@@ -897,7 +897,7 @@ export default function App() {
   if (activePage === 'company') {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col text-slate-800 antialiased font-sans" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-        <CompanyPortal 
+        <CompanyPortal
           lang={lang}
           trips={trips}
           setTrips={setTrips}
@@ -912,20 +912,20 @@ export default function App() {
           }}
           showToast={handleShowToast}
         />
-        <Toasts toasts={toasts} setToasts={setToasts} />
+        <Toasts lang={lang} toasts={toasts} onDismiss={handleDismissToast} />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-slate-50/50 flex flex-col justify-between text-slate-800 antialiased font-sans">
-      
+
       {/* HEADER SECTION */}
       <header className="sticky top-0 z-50 glass-panel shadow-sm">
         <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 py-2 sm:py-3 flex items-center justify-between">
-          
+
           {/* Logo & Slogan */}
-          <div 
+          <div
             className="flex items-center gap-1.5 sm:gap-3 cursor-pointer select-none"
             onClick={() => {
               setSelectedCategory('all');
@@ -933,9 +933,9 @@ export default function App() {
             }}
           >
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center shadow-xs shrink-0">
-              <img 
+              <img
                 src={traveloLogo}
-                alt="Travelo" 
+                alt="Travelo"
                 className="w-full h-full object-contain rounded-lg scale-[1.4]"
                 referrerPolicy="no-referrer"
               />
@@ -952,8 +952,8 @@ export default function App() {
 
           {/* Desktop Categories Navigation Links */}
           <nav className="hidden lg:flex items-center gap-0.5 bg-slate-50/90 p-0.5 rounded-full border border-slate-200/65 select-none shrink-0 shadow-sm">
-            <a 
-              href="#" 
+            <a
+              href="#"
               onClick={(e) => {
                 e.preventDefault();
                 setSelectedCategory('all');
@@ -967,8 +967,8 @@ export default function App() {
 
             <div className="h-3 w-px bg-slate-200 mx-0.5" />
 
-            <a 
-              href="#hotels-section" 
+            <a
+              href="#hotels-section"
               onClick={(e) => {
                 e.preventDefault();
                 setSelectedCategory('all');
@@ -981,8 +981,8 @@ export default function App() {
               <Hotel className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
               <span>{lex.hotels}</span>
             </a>
-            <a 
-              href="#apartments-section" 
+            <a
+              href="#apartments-section"
               onClick={(e) => {
                 e.preventDefault();
                 setSelectedCategory('all');
@@ -995,8 +995,8 @@ export default function App() {
               <Home className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>{lex.apartments}</span>
             </a>
-            <a 
-              href="#cars-section" 
+            <a
+              href="#cars-section"
               onClick={(e) => {
                 e.preventDefault();
                 setSelectedCategory('all');
@@ -1009,8 +1009,8 @@ export default function App() {
               <Car className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
               <span>{lex.cars}</span>
             </a>
-            <a 
-              href="#restaurants-section" 
+            <a
+              href="#restaurants-section"
               onClick={(e) => {
                 e.preventDefault();
                 setSelectedCategory('all');
@@ -1026,8 +1026,8 @@ export default function App() {
 
             <div className="h-3 w-px bg-slate-200 mx-0.5" />
 
-            <a 
-              href="#services" 
+            <a
+              href="#services"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById('services')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1037,8 +1037,8 @@ export default function App() {
               <Sparkles className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400 animate-pulse" />
               <span>{lex.services}</span>
             </a>
-            <a 
-              href="#about" 
+            <a
+              href="#about"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById('about')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1048,8 +1048,8 @@ export default function App() {
               <Users className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
               <span>{lex.about}</span>
             </a>
-            <a 
-              href="#contact" 
+            <a
+              href="#contact"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1063,9 +1063,9 @@ export default function App() {
 
           {/* User actions drawer / clock header */}
           <div className="flex items-center gap-1 sm:gap-2 relative">
-            
+
             {/* Theme Toggle Button */}
-            <button 
+            <button
               onClick={toggleTheme}
               className="p-2 sm:p-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all flex items-center justify-center cursor-pointer border border-transparent hover:border-slate-200 shrink-0"
               title={lang === 'ar' ? (theme === 'dark' ? 'تبديل للوضع المضيء' : 'تبديل للوضع المظلم') : (theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode')}
@@ -1078,7 +1078,7 @@ export default function App() {
             </button>
 
             {/* Language Switcher */}
-            <button 
+            <button
               onClick={toggleLanguage}
               className="p-2 sm:p-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all flex items-center gap-1 text-xs font-bold cursor-pointer border border-transparent hover:border-slate-200 shrink-0"
             >
@@ -1090,7 +1090,7 @@ export default function App() {
             {/* Notification dropzone bell */}
             {currentUser && (
               <div className="relative shrink-0" ref={notifRef}>
-                <button 
+                <button
                   onClick={() => setIsNotifOpen(!isNotifOpen)}
                   className="p-2 sm:p-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all relative border border-transparent hover:border-slate-200 cursor-pointer"
                 >
@@ -1109,13 +1109,13 @@ export default function App() {
                       <span className="text-xs font-bold text-slate-800">{lex.notifTitle}</span>
                       {notifications.length > 0 && (
                         <div className="flex gap-2">
-                          <button 
+                          <button
                             onClick={handleReadAll}
                             className="text-[10px] text-teal-600 hover:underline font-bold cursor-pointer"
                           >
                             {lex.markAllRead}
                           </button>
-                          <button 
+                          <button
                             onClick={handleClearNotifs}
                             className="text-[10px] text-rose-600 hover:underline font-bold cursor-pointer flex items-center gap-0.5"
                           >
@@ -1134,8 +1134,8 @@ export default function App() {
                         </div>
                       ) : (
                         notifications.map((n) => (
-                          <div 
-                            key={n.id} 
+                          <div
+                            key={n.id}
                             onClick={() => handleMarkRead(n.id)}
                             className={`p-3 border-b border-slate-50/50 hover:bg-slate-50 transition-colors flex items-start gap-2.5 text-xs text-left cursor-pointer
                               ${!n.read ? 'bg-teal-50/40 relative' : ''}
@@ -1160,7 +1160,7 @@ export default function App() {
 
             {/* User details credentials actions */}
             <div className="relative shrink-0" ref={userRef}>
-              <button 
+              <button
                 onClick={() => setIsUserOpen(!isUserOpen)}
                 className="p-2 sm:p-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-700 transition-all flex items-center gap-1 sm:gap-1.5 text-xs font-bold border border-teal-100/30 cursor-pointer"
               >
@@ -1180,7 +1180,7 @@ export default function App() {
                         <span className="text-xs text-slate-400 block truncate leading-tight">Email</span>
                         <strong className="text-xs text-slate-800 truncate block mt-0.5">{currentUser.email}</strong>
                       </div>
-                      <button 
+                      <button
                         onClick={() => { setEditProfileOpen(true); setIsUserOpen(false); }}
                         className="w-full text-right px-4 py-2 hover:bg-slate-50 text-slate-700 text-xs font-semibold cursor-pointer flex items-center gap-2 hover:text-slate-900"
                         dir={isAr ? 'rtl' : 'ltr'}
@@ -1188,7 +1188,7 @@ export default function App() {
                         <User className="w-3.5 h-3.5 text-slate-400" />
                         <span>{lex.editProfile}</span>
                       </button>
-                      <button 
+                      <button
                         onClick={handleLogout}
                         className="w-full text-right px-4 py-2 hover:bg-rose-50 text-rose-600 text-xs font-bold cursor-pointer flex items-center gap-2 border-t border-slate-50"
                         dir={isAr ? 'rtl' : 'ltr'}
@@ -1199,14 +1199,14 @@ export default function App() {
                     </>
                   ) : (
                     <>
-                      <button 
+                      <button
                         onClick={() => { setLoginModalOpen(true); setIsUserOpen(false); }}
                         className="w-full text-right px-4 py-2 hover:bg-slate-50 text-slate-700 text-xs font-semibold cursor-pointer"
                         dir={isAr ? 'rtl' : 'ltr'}
                       >
                         {lex.login}
                       </button>
-                      <button 
+                      <button
                         onClick={() => { setSignupModalOpen(true); setIsUserOpen(false); }}
                         className="w-full text-right px-4 py-2 hover:bg-slate-50 text-slate-700 text-xs font-semibold cursor-pointer"
                         dir={isAr ? 'rtl' : 'ltr'}
@@ -1220,7 +1220,7 @@ export default function App() {
             </div>
 
             {/* Mobile Nav toggle */}
-            <button 
+            <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className="lg:hidden p-2.5 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
             >
@@ -1234,7 +1234,7 @@ export default function App() {
       {isSidebarOpen && (
         <div className="fixed inset-0 z-[1000] bg-slate-900/60 backdrop-blur-md flex items-stretch justify-start animate-fade-in-backdrop">
           <div className="bg-white max-w-xs w-full p-6 flex flex-col justify-between shadow-2xl relative overflow-y-auto custom-modal-scroll">
-            <button 
+            <button
               onClick={() => setIsSidebarOpen(false)}
               className="absolute top-5 right-5 p-1 rounded-full bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200 cursor-pointer"
             >
@@ -1244,119 +1244,119 @@ export default function App() {
             <div className="mt-8 space-y-6">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-white rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center shadow-xs">
-                  <img 
+                  <img
                     src={traveloLogo}
-                    alt="Travelo" 
+                    alt="Travelo"
                     className="w-full h-full object-contain rounded-lg scale-[1.4]"
                     referrerPolicy="no-referrer"
                   />
                 </div>
                 <strong className="text-slate-800 text-lg font-black uppercase tracking-wider">{lex.brand}</strong>
               </div>
-              
+
               <nav className="flex flex-col gap-2">
-                <a 
-                  href="#" 
-                  onClick={(e) => { 
+                <a
+                  href="#"
+                  onClick={(e) => {
                     e.preventDefault();
-                    setSelectedCategory('all'); 
-                    setIsSidebarOpen(false); 
+                    setSelectedCategory('all');
+                    setIsSidebarOpen(false);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }} 
+                  }}
                   className="py-3 px-4 rounded-xl hover:bg-slate-50 font-bold text-sm flex items-center gap-3 text-slate-800 hover:text-slate-900 transition-colors"
                 >
                   <Home className="w-4 h-4 text-teal-600 shrink-0" />
                   <span>{lex.home}</span>
                 </a>
-                <a 
-                  href="#hotels-section" 
-                  onClick={(e) => { 
+                <a
+                  href="#hotels-section"
+                  onClick={(e) => {
                     e.preventDefault();
-                    setSelectedCategory('all'); 
-                    setIsSidebarOpen(false); 
+                    setSelectedCategory('all');
+                    setIsSidebarOpen(false);
                     setTimeout(() => {
                       document.getElementById('hotels-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }, 50);
-                  }} 
+                  }}
                   className="py-3 px-4 rounded-xl hover:bg-slate-50 font-bold text-sm flex items-center gap-3 text-slate-800 hover:text-slate-900 transition-colors"
                 >
                   <Hotel className="w-4 h-4 text-blue-600 shrink-0" />
                   <span>{lex.hotels}</span>
                 </a>
-                <a 
-                  href="#apartments-section" 
-                  onClick={(e) => { 
+                <a
+                  href="#apartments-section"
+                  onClick={(e) => {
                     e.preventDefault();
-                    setSelectedCategory('all'); 
-                    setIsSidebarOpen(false); 
+                    setSelectedCategory('all');
+                    setIsSidebarOpen(false);
                     setTimeout(() => {
                       document.getElementById('apartments-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }, 50);
-                  }} 
+                  }}
                   className="py-3 px-4 rounded-xl hover:bg-slate-50 font-bold text-sm flex items-center gap-3 text-slate-800 hover:text-slate-900 transition-colors"
                 >
                   <Home className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>{lex.apartments}</span>
                 </a>
-                <a 
-                  href="#cars-section" 
-                  onClick={(e) => { 
+                <a
+                  href="#cars-section"
+                  onClick={(e) => {
                     e.preventDefault();
-                    setSelectedCategory('all'); 
-                    setIsSidebarOpen(false); 
+                    setSelectedCategory('all');
+                    setIsSidebarOpen(false);
                     setTimeout(() => {
                       document.getElementById('cars-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }, 50);
-                  }} 
+                  }}
                   className="py-3 px-4 rounded-xl hover:bg-slate-50 font-bold text-sm flex items-center gap-3 text-slate-800 hover:text-slate-900 transition-colors"
                 >
                   <Car className="w-4 h-4 text-rose-600 shrink-0" />
                   <span>{lex.cars}</span>
                 </a>
-                <a 
-                  href="#restaurants-section" 
-                  onClick={(e) => { 
+                <a
+                  href="#restaurants-section"
+                  onClick={(e) => {
                     e.preventDefault();
-                    setSelectedCategory('all'); 
-                    setIsSidebarOpen(false); 
+                    setSelectedCategory('all');
+                    setIsSidebarOpen(false);
                     setTimeout(() => {
                       document.getElementById('restaurants-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }, 50);
-                  }} 
+                  }}
                   className="py-3 px-4 rounded-xl hover:bg-slate-50 font-bold text-sm flex items-center gap-3 text-slate-800 hover:text-slate-900 transition-colors"
                 >
                   <Utensils className="w-4 h-4 text-amber-600 shrink-0" />
                   <span>{lex.restaurants}</span>
                 </a>
-                
+
                 <div className="my-1 border-t border-slate-10 border-dashed" />
 
-                <a 
-                  href="#services" 
-                  onClick={() => setIsSidebarOpen(false)} 
+                <a
+                  href="#services"
+                  onClick={() => setIsSidebarOpen(false)}
                   className="py-3 px-4 rounded-xl hover:bg-slate-50 font-bold text-sm flex items-center gap-3 text-slate-800 hover:text-slate-900 transition-colors"
                 >
                   <Sparkles className="w-4 h-4 text-violet-600 shrink-0" />
                   <span>{lex.services}</span>
                 </a>
-                <a 
-                  href="#about" 
-                  onClick={() => setIsSidebarOpen(false)} 
+                <a
+                  href="#about"
+                  onClick={() => setIsSidebarOpen(false)}
                   className="py-3 px-4 rounded-xl hover:bg-slate-50 font-bold text-sm flex items-center gap-3 text-slate-800 hover:text-slate-900 transition-colors"
                 >
                   <Users className="w-4 h-4 text-sky-600 shrink-0" />
                   <span>{lex.about}</span>
                 </a>
-                <a 
-                  href="#contact" 
-                  onClick={() => setIsSidebarOpen(false)} 
+                <a
+                  href="#contact"
+                  onClick={() => setIsSidebarOpen(false)}
                   className="py-3 px-4 rounded-xl hover:bg-slate-50 font-bold text-sm flex items-center gap-3 text-slate-800 hover:text-slate-900 transition-colors"
                 >
                   <Phone className="w-4 h-4 text-indigo-600 shrink-0" />
                   <span>{lex.contact}</span>
                 </a>
 
-                <button 
+                <button
                   onClick={() => {
                     toggleTheme();
                     setIsSidebarOpen(false);
@@ -1385,8 +1385,8 @@ export default function App() {
 
       {/* MAIN LAYOUT WRAPPER */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 space-y-12">
-          
-          {/* HERO SECTION CONTAINER */}
+
+        {/* HERO SECTION CONTAINER */}
         <div className="relative rounded-[2.5rem] bg-slate-950 p-8 sm:p-12 md:p-16 text-center select-none shadow-2xl overflow-hidden min-h-[380px] flex flex-col justify-center items-center">
           {/* Background image parallax overlays */}
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1599839620584-6997cc0fcae0?auto=format&fit=crop&w=1600&q=80')] bg-cover bg-center opacity-40 mix-blend-luminosity scale-105 transition-transform duration-1000"></div>
@@ -1409,8 +1409,8 @@ export default function App() {
               <div className="flex items-stretch bg-white border border-slate-100 rounded-2xl shadow-xl overflow-hidden p-1.5 group-focus-within:ring-4 group-focus-within:ring-teal-500/10 transition-all">
                 <div className="flex items-center gap-2 pl-3 py-2 pr-1 grow select-none">
                   <Search className="w-5 h-5 text-slate-400" />
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     placeholder={lex.searchPlaceholder}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -1432,7 +1432,7 @@ export default function App() {
 
         {/* DATA DISPLAY GRID CONTENT */}
         <div id="catalog-content" className="space-y-6 pt-6">
-          
+
           {/* Section title & Category filters row */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
             <div>
@@ -1445,19 +1445,19 @@ export default function App() {
 
             {/* Availability filter switches */}
             <div className="flex bg-slate-100 border border-slate-200/50 rounded-xl p-1 shrink-0 self-start text-xs font-bold leading-none select-none">
-              <button 
+              <button
                 onClick={() => setAvailabilityFilter('all')}
                 className={`py-2 px-3 rounded-lg transition-all cursor-pointer ${availabilityFilter === 'all' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}
               >
                 {lex.allStatus}
               </button>
-              <button 
+              <button
                 onClick={() => setAvailabilityFilter('available')}
                 className={`py-2 px-3 rounded-lg transition-all cursor-pointer ${availabilityFilter === 'available' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}
               >
                 {lex.onlyAvailable}
               </button>
-              <button 
+              <button
                 onClick={() => setAvailabilityFilter('booked')}
                 className={`py-2 px-3 rounded-lg transition-all cursor-pointer ${availabilityFilter === 'booked' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}
               >
@@ -1482,8 +1482,8 @@ export default function App() {
                   key={catPill.id}
                   onClick={() => setSelectedCategory(catPill.id)}
                   className={`group py-2 px-4 rounded-full text-xs sm:text-sm font-bold border transition-all cursor-pointer flex items-center gap-2
-                    ${isActive 
-                      ? 'bg-gradient-to-r from-teal-600 to-indigo-600 text-white border-transparent shadow-md shadow-teal-600/10 scale-102 font-extrabold' 
+                    ${isActive
+                      ? 'bg-gradient-to-r from-teal-600 to-indigo-600 text-white border-transparent shadow-md shadow-teal-600/10 scale-102 font-extrabold'
                       : 'bg-white dark:bg-white text-slate-700 dark:text-slate-800 border-slate-200 dark:border-slate-200 hover:bg-slate-50 dark:hover:bg-slate-50'
                     }
                   `}
@@ -1508,7 +1508,7 @@ export default function App() {
               <p className="text-slate-500 text-xs sm:text-sm mt-2">
                 {isAr ? 'جرب البحث مجدداً بكلمات بحث أخرى أو قم بتفريغ الحقول.' : 'Try adjusting your status search filters or search parameters.'}
               </p>
-              <button 
+              <button
                 onClick={() => { setSearchQuery(''); setAvailabilityFilter('all'); setSelectedCategory('all'); }}
                 className="mt-5 inline-flex items-center gap-2 py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-xl text-xs font-bold transition-all cursor-pointer border border-slate-200"
               >
@@ -1566,7 +1566,7 @@ export default function App() {
                       {isAr ? 'فنادق وأجنحة شريكة توفر أرقى الخدمات الفاخرة لك ولعائلتك في المحافظات السورية.' : 'Carefully chosen premium hotel retreats and master bedroom suites across Syrian cities.'}
                     </p>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {(showAllHotels ? filteredHotels : filteredHotels.slice(0, 3)).map((trip) => renderTripCard(trip))}
                   </div>
@@ -1600,7 +1600,7 @@ export default function App() {
                       {isAr ? 'شقق سكنية مفروشة ديلوكس في دمشق والمحافظات السورية بإطلالات خلابة وتجهيزات ذكية كاملة.' : 'Settle into luxury fully-furnished residential suites and flat options across Syrian cities.'}
                     </p>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {(showAllApartments ? filteredApartments : filteredApartments.slice(0, 3)).map((trip) => renderTripCard(trip))}
                   </div>
@@ -1634,7 +1634,7 @@ export default function App() {
                       {isAr ? 'تنقل مريح وآمن في سوريا بأسطول سيارات حديث مع خيارات السائق الشخصي من ترافيلو.' : 'Discover Syrian topography comfortably using modern, safe luxury automobiles.'}
                     </p>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {(showAllCars ? filteredCars : filteredCars.slice(0, 3)).map((trip) => renderTripCard(trip))}
                   </div>
@@ -1668,7 +1668,7 @@ export default function App() {
                       {isAr ? 'تذوق أشهى الأطباق التراثية والشرقية والمطابخ العريقة بجلسات عائلية أو VIP حصرية.' : 'Savor authentic recipes and eastern Levant cuisine with guaranteed table reservations.'}
                     </p>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {(showAllRestaurants ? filteredRestaurants : filteredRestaurants.slice(0, 3)).map((trip) => renderTripCard(trip))}
                   </div>
@@ -1699,7 +1699,7 @@ export default function App() {
         {/* INTEGRATED CONTACT CONCIERGE FORM */}
         <ContactSection lang={lang} onShowToast={handleShowToast} />
 
-        </main>
+      </main>
 
       {/* FOOTER AREA */}
       <footer className="bg-slate-900 text-white/70 py-10 border-t border-white/5 select-none text-xs sm:text-sm">
@@ -1720,205 +1720,205 @@ export default function App() {
       {/* FULL IMMERSIVE POPUP DETAIL REVIEW MODAL */}
       <AnimatePresence>
         {selectedTrip && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[9990] p-4 flex items-center justify-center bg-slate-950/60 backdrop-blur-md select-none"
           >
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 50, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 45, scale: 0.95 }}
               transition={{ type: 'spring', damping: 25, stiffness: 350 }}
               className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-2xl max-w-lg w-full max-h-[92vh] sm:max-h-[90vh] overflow-y-auto custom-modal-scroll relative"
             >
-            
-            {/* Close trigger button */}
-            <button 
-              onClick={() => setSelectedTrip(null)}
-              className="absolute top-4 right-4 z-20 p-2 rounded-full bg-slate-900/60 hover:bg-slate-900/90 text-white backdrop-blur-sm transition-colors cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
 
-            {/* Slider carousel header list */}
-            <div className="relative h-40 sm:h-48 bg-slate-900 select-none">
-              <img 
-                src={selectedTrip.images[detailActiveImgIndex] || selectedTrip.image} 
-                alt={selectedTrip.title} 
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
+              {/* Close trigger button */}
+              <button
+                onClick={() => setSelectedTrip(null)}
+                className="absolute top-4 right-4 z-20 p-2 rounded-full bg-slate-900/60 hover:bg-slate-900/90 text-white backdrop-blur-sm transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
 
-              {/* Slider Controls */}
-              {selectedTrip.images.length > 1 && (
-                <>
-                  <button 
-                    onClick={() => setDetailActiveImgIndex(prev => (prev - 1 + selectedTrip.images.length) % selectedTrip.images.length)}
-                    className="absolute inset-y-auto left-4 p-2 rounded-full bg-white/20 select-none text-white backdrop-blur-sm hover:bg-white/45 transition-all cursor-pointer shadow"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <button 
-                    onClick={() => setDetailActiveImgIndex(prev => (prev + 1) % selectedTrip.images.length)}
-                    className="absolute inset-y-auto right-4 p-2 rounded-full bg-white/20 select-none text-white backdrop-blur-sm hover:bg-white/45 transition-all cursor-pointer shadow"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                </>
-              )}
+              {/* Slider carousel header list */}
+              <div className="relative h-40 sm:h-48 bg-slate-900 select-none">
+                <img
+                  src={selectedTrip.images[detailActiveImgIndex] || selectedTrip.image}
+                  alt={selectedTrip.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
 
-              {/* Dots index tracker indicator list */}
-              {selectedTrip.images.length > 1 && (
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 selection:bg-transparent">
-                  {selectedTrip.images.map((_, i) => (
-                    <button 
-                      key={i} 
-                      onClick={() => setDetailActiveImgIndex(i)}
-                      className={`w-2 h-2 rounded-full transition-all cursor-pointer
+                {/* Slider Controls */}
+                {selectedTrip.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => setDetailActiveImgIndex(prev => (prev - 1 + selectedTrip.images.length) % selectedTrip.images.length)}
+                      className="absolute inset-y-auto left-4 p-2 rounded-full bg-white/20 select-none text-white backdrop-blur-sm hover:bg-white/45 transition-all cursor-pointer shadow"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => setDetailActiveImgIndex(prev => (prev + 1) % selectedTrip.images.length)}
+                      className="absolute inset-y-auto right-4 p-2 rounded-full bg-white/20 select-none text-white backdrop-blur-sm hover:bg-white/45 transition-all cursor-pointer shadow"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </>
+                )}
+
+                {/* Dots index tracker indicator list */}
+                {selectedTrip.images.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 selection:bg-transparent">
+                    {selectedTrip.images.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setDetailActiveImgIndex(i)}
+                        className={`w-2 h-2 rounded-full transition-all cursor-pointer
                         ${detailActiveImgIndex === i ? 'bg-white scale-125' : 'bg-white/40'}
                       `}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Detail Body */}
-            <div className="p-4 sm:p-5 space-y-3.5">
-              <div className="space-y-1">
-                <div className="flex select-none flex-wrap gap-1.5 pb-1">
-                  <span className="py-0.5 px-2.5 rounded-full bg-teal-50 text-teal-700 text-[10px] font-bold border border-teal-100 uppercase">
-                    {selectedTrip.category === 'hotels' ? '🏨 Hotel' : selectedTrip.category === 'cars' ? '🚗 Car Rental' : '🍽️ Dining'}
-                  </span>
-                  <span className={`py-0.5 px-2.5 rounded-full text-[10px] font-bold border uppercase
-                    ${selectedTrip.isBooked ? 'bg-rose-50 text-rose-700 border-rose-100' : 'bg-emerald-50 text-emerald-700 border-emerald-100'}
-                  `}>
-                    {selectedTrip.isBooked ? lex.bookedBadge : lex.availableBadge}
-                  </span>
-                </div>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
-                  {isAr ? selectedTrip.title : selectedTrip.title_en}
-                </h3>
-                {selectedTrip.title_en && !isAr && (
-                  <p className="text-xs text-slate-400 font-bold leading-none">{selectedTrip.title_en}</p>
+                      />
+                    ))}
+                  </div>
                 )}
               </div>
 
-              {/* Details pricing / stars row */}
-              <div className="flex px-4 py-2 bg-slate-50 border border-slate-100 rounded-2xl items-center justify-between">
-                <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block leading-none">{lex.price}</span>
-                  <div className="flex items-baseline mt-1 leading-none">
-                    {selectedTrip.category === 'restaurants' ? (
-                      <strong className="text-sm font-extrabold text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-lg">
-                        {isAr ? 'بدون تسعير' : 'No pre-pricing required'}
-                      </strong>
-                    ) : (
-                      <>
-                        <strong className="text-xl sm:text-2xl font-black text-teal-600">${selectedTrip.price}</strong>
-                        <span className="text-xs text-slate-400">
-                          /{selectedTrip.category === 'hotels' ? (isAr ? 'ليلة' : 'night') : selectedTrip.category === 'apartments' ? (isAr ? 'شهر' : 'month') : (isAr ? 'يوم' : 'day')}
-                        </span>
-                      </>
-                    )}
+              {/* Detail Body */}
+              <div className="p-4 sm:p-5 space-y-3.5">
+                <div className="space-y-1">
+                  <div className="flex select-none flex-wrap gap-1.5 pb-1">
+                    <span className="py-0.5 px-2.5 rounded-full bg-teal-50 text-teal-700 text-[10px] font-bold border border-teal-100 uppercase">
+                      {selectedTrip.category === 'hotels' ? '🏨 Hotel' : selectedTrip.category === 'cars' ? '🚗 Car Rental' : '🍽️ Dining'}
+                    </span>
+                    <span className={`py-0.5 px-2.5 rounded-full text-[10px] font-bold border uppercase
+                    ${selectedTrip.isBooked ? 'bg-rose-50 text-rose-700 border-rose-100' : 'bg-emerald-50 text-emerald-700 border-emerald-100'}
+                  `}>
+                      {selectedTrip.isBooked ? lex.bookedBadge : lex.availableBadge}
+                    </span>
                   </div>
+                  <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
+                    {isAr ? selectedTrip.title : selectedTrip.title_en}
+                  </h3>
+                  {selectedTrip.title_en && !isAr && (
+                    <p className="text-xs text-slate-400 font-bold leading-none">{selectedTrip.title_en}</p>
+                  )}
                 </div>
 
-                {selectedTrip.adminRating && (
-                  <div className="text-right">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase block leading-none">{lex.rating}</span>
-                    <div className="flex items-center gap-1.25 mt-1">
-                      <strong className="text-sm font-black text-amber-500 leading-none">{selectedTrip.adminRating}</strong>
-                      <Star className="w-3.5 h-3.5 text-amber-500 fill-current leading-none" />
+                {/* Details pricing / stars row */}
+                <div className="flex px-4 py-2 bg-slate-50 border border-slate-100 rounded-2xl items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase block leading-none">{lex.price}</span>
+                    <div className="flex items-baseline mt-1 leading-none">
+                      {selectedTrip.category === 'restaurants' ? (
+                        <strong className="text-sm font-extrabold text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-lg">
+                          {isAr ? 'بدون تسعير' : 'No pre-pricing required'}
+                        </strong>
+                      ) : (
+                        <>
+                          <strong className="text-xl sm:text-2xl font-black text-teal-600">${selectedTrip.price}</strong>
+                          <span className="text-xs text-slate-400">
+                            /{selectedTrip.category === 'hotels' ? (isAr ? 'ليلة' : 'night') : selectedTrip.category === 'apartments' ? (isAr ? 'شهر' : 'month') : (isAr ? 'يوم' : 'day')}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {selectedTrip.adminRating && (
+                    <div className="text-right">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block leading-none">{lex.rating}</span>
+                      <div className="flex items-center gap-1.25 mt-1">
+                        <strong className="text-sm font-black text-amber-500 leading-none">{selectedTrip.adminRating}</strong>
+                        <Star className="w-3.5 h-3.5 text-amber-500 fill-current leading-none" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Detailed Description */}
+                <div className="space-y-1">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide block">{isAr ? 'حول هذا العرض' : 'stay description'}</span>
+                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
+                    {isAr ? (selectedTrip.description || selectedTrip.subtitle) : (selectedTrip.description_en || selectedTrip.subtitle_en)}
+                  </p>
+                </div>
+
+                {/* Services details lists */}
+                {selectedTrip.services && selectedTrip.services.length > 0 && (
+                  <div className="space-y-2">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide block">{lex.additionalDetails}</span>
+                    <div className="flex flex-wrap gap-1">
+                      {(isAr ? selectedTrip.services : selectedTrip.services_en).map((svc, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex items-center gap-1 py-1 px-2.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200/50"
+                        >
+                          <CheckCircle2 className="w-3 h-3 text-teal-600 shrink-0" />
+                          <span>{svc}</span>
+                        </span>
+                      ))}
                     </div>
                   </div>
                 )}
-              </div>
 
-              {/* Detailed Description */}
-              <div className="space-y-1">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide block">{isAr ? 'حول هذا العرض' : 'stay description'}</span>
-                <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
-                  {isAr ? (selectedTrip.description || selectedTrip.subtitle) : (selectedTrip.description_en || selectedTrip.subtitle_en)}
-                </p>
-              </div>
-
-              {/* Services details lists */}
-              {selectedTrip.services && selectedTrip.services.length > 0 && (
-                <div className="space-y-2">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide block">{lex.additionalDetails}</span>
-                  <div className="flex flex-wrap gap-1">
-                    {(isAr ? selectedTrip.services : selectedTrip.services_en).map((svc, i) => (
-                      <span 
-                        key={i} 
-                        className="inline-flex items-center gap-1 py-1 px-2.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200/50"
-                      >
-                        <CheckCircle2 className="w-3 h-3 text-teal-600 shrink-0" />
-                        <span>{svc}</span>
-                      </span>
-                    ))}
+                {/* Company Ownership Label */}
+                {selectedTrip.companyName && (
+                  <div className="p-3 bg-slate-100 rounded-xl text-xs flex items-center justify-between text-slate-500 font-medium">
+                    <span>{isAr ? 'الجهة المالكة والمنظمة:' : 'Owner / Concierge operator:'}</span>
+                    <strong className="text-slate-800">{isAr ? selectedTrip.companyName : selectedTrip.companyName_en}</strong>
                   </div>
-                </div>
-              )}
-
-              {/* Company Ownership Label */}
-              {selectedTrip.companyName && (
-                <div className="p-3 bg-slate-100 rounded-xl text-xs flex items-center justify-between text-slate-500 font-medium">
-                  <span>{isAr ? 'الجهة المالكة والمنظمة:' : 'Owner / Concierge operator:'}</span>
-                  <strong className="text-slate-800">{isAr ? selectedTrip.companyName : selectedTrip.companyName_en}</strong>
-                </div>
-              )}
-
-              {/* Bottom Interactive Trigger maps / book */}
-              <div className="pt-3 border-t border-slate-100 space-y-3">
-                
-                {/* Embedded Interactive OSM Container with directions fallback */}
-                {(selectedTrip.hotelLocation || selectedTrip.restaurantLocation) && (
-                  <MapContainer 
-                    locationQuery={selectedTrip.hotelLocation || selectedTrip.restaurantLocation || ''} 
-                    locationName={isAr ? selectedTrip.title : selectedTrip.title_en}
-                    category={selectedTrip.category === 'hotels' ? 'hotels' : 'restaurants'}
-                  />
                 )}
 
-                {/* Confirm reservation button */}
-                <button 
-                  onClick={() => { handleTriggerBooking(selectedTrip); setSelectedTrip(null); }}
-                  disabled={selectedTrip.isBooked}
-                  className={`w-full py-4 px-6 text-white font-bold rounded-2xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer
-                    ${selectedTrip.isBooked 
-                      ? 'bg-slate-300 pointer-events-none select-none shadow-none' 
-                      : 'bg-gradient-to-r from-teal-600 to-indigo-600 hover:from-teal-700 hover:to-indigo-700 shadow-teal-600/10'
-                    }
-                  `}
-                >
-                  {selectedTrip.isBooked ? (
-                    <span>{lex.bookedBadge}</span>
-                  ) : (
-                    <>
-                      <Calendar className="w-4 h-4" />
-                      <span>{currentUser ? lex.bookNow : `${lex.login} / ${lex.bookNow}`}</span>
-                    </>
+                {/* Bottom Interactive Trigger maps / book */}
+                <div className="pt-3 border-t border-slate-100 space-y-3">
+
+                  {/* Embedded Interactive OSM Container with directions fallback */}
+                  {(selectedTrip.hotelLocation || selectedTrip.restaurantLocation) && (
+                    <MapContainer
+                      locationQuery={selectedTrip.hotelLocation || selectedTrip.restaurantLocation || ''}
+                      locationName={isAr ? selectedTrip.title : selectedTrip.title_en}
+                      category={selectedTrip.category === 'hotels' ? 'hotels' : 'restaurants'}
+                    />
                   )}
-                </button>
+
+                  {/* Confirm reservation button */}
+                  <button
+                    onClick={() => { handleTriggerBooking(selectedTrip); setSelectedTrip(null); }}
+                    disabled={selectedTrip.isBooked}
+                    className={`w-full py-4 px-6 text-white font-bold rounded-2xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer
+                    ${selectedTrip.isBooked
+                        ? 'bg-slate-300 pointer-events-none select-none shadow-none'
+                        : 'bg-gradient-to-r from-teal-600 to-indigo-600 hover:from-teal-700 hover:to-indigo-700 shadow-teal-600/10'
+                      }
+                  `}
+                  >
+                    {selectedTrip.isBooked ? (
+                      <span>{lex.bookedBadge}</span>
+                    ) : (
+                      <>
+                        <Calendar className="w-4 h-4" />
+                        <span>{currentUser ? lex.bookNow : `${lex.login} / ${lex.bookNow}`}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
               </div>
 
-            </div>
-
+            </motion.div>
           </motion.div>
-        </motion.div>
-      )}
+        )}
       </AnimatePresence>
 
       {/* COMPREHENSIVE CATEGORY SPECIFIC RESERVATION FORMS OVERLAYS */}
       {bookingTrip && (
         <div className="fixed inset-0 z-[9990] p-4 flex items-center justify-center bg-slate-950/60 backdrop-blur-md select-none animate-fade-in-backdrop">
           <div className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-2xl max-w-md sm:max-w-xl w-full max-h-[85vh] overflow-y-auto custom-modal-scroll relative animate-scale-in-box">
-            
+
             {/* Close button modal dropdown */}
-            <button 
+            <button
               onClick={() => setBookingTrip(null)}
               className="absolute top-5 right-5 z-20 text-slate-400 hover:text-slate-800 transition-colors cursor-pointer"
             >
@@ -1926,7 +1926,7 @@ export default function App() {
             </button>
 
             <form onSubmit={handleConfirmBookingSubmit} className="p-8 space-y-6">
-              
+
               {/* Header block */}
               <div className="text-center pb-4 border-b border-slate-100">
                 <span className="py-1 px-3 rounded-full bg-teal-50 text-teal-700 text-[10px] font-bold border border-teal-100 uppercase select-none">
@@ -2017,11 +2017,11 @@ export default function App() {
                   {hotelNationality && hotelMaritalStatus && (
                     <div className="space-y-3.5 pt-2 border-t border-slate-100">
                       <span className="text-[10px] text-slate-400 font-extrabold block uppercase tracking-wider">{isAr ? 'الوثائق الثبوتية الآمنة لرفعها رقمياً' : 'Certified document scans upload list'}</span>
-                      
+
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 select-none">
                         {/* Syrian National ID */}
                         {hotelNationality === 'syrian' && (
-                          <div 
+                          <div
                             onClick={() => handleFileUploadMock('id')}
                             className="p-4 bg-slate-50 hover:bg-slate-100/80 border-2 border-dashed border-slate-200 hover:border-teal-500 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[90px] relative overflow-hidden group transition-all"
                           >
@@ -2038,7 +2038,7 @@ export default function App() {
 
                         {/* Foreign Passport */}
                         {hotelNationality === 'tourist' && (
-                          <div 
+                          <div
                             onClick={() => handleFileUploadMock('passport')}
                             className="p-4 bg-slate-50 hover:bg-slate-100/80 border-2 border-dashed border-slate-200 hover:border-teal-500 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[90px] relative overflow-hidden group transition-all"
                           >
@@ -2055,7 +2055,7 @@ export default function App() {
 
                         {/* Accompanied Family Book */}
                         {hotelMaritalStatus === 'married_children' && (
-                          <div 
+                          <div
                             onClick={() => handleFileUploadMock('family')}
                             className="p-4 bg-slate-50 hover:bg-slate-100/80 border-2 border-dashed border-slate-200 hover:border-teal-500 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[90px] relative overflow-hidden group transition-all"
                           >
@@ -2073,7 +2073,7 @@ export default function App() {
                         {/* HoneyMoon Family marriage scans */}
                         {hotelMaritalStatus === 'married_new' && (
                           <>
-                            <div 
+                            <div
                               onClick={() => handleFileUploadMock('family')}
                               className="p-4 bg-slate-50 hover:bg-slate-100/80 border-2 border-dashed border-slate-200 hover:border-teal-500 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[90px] relative overflow-hidden group transition-all"
                             >
@@ -2086,7 +2086,7 @@ export default function App() {
                                 </>
                               )}
                             </div>
-                            <div 
+                            <div
                               onClick={() => handleFileUploadMock('contract')}
                               className="p-4 bg-slate-50 hover:bg-slate-100/80 border-2 border-dashed border-slate-200 hover:border-teal-500 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[90px] relative overflow-hidden group transition-all"
                             >
@@ -2119,7 +2119,7 @@ export default function App() {
                             {bookingDays} {bookingTrip.category === 'apartments' ? (isAr ? 'أشهر' : 'months') : (isAr ? 'ليالي' : 'nights')}
                           </strong>
                         </div>
-                        <input 
+                        <input
                           type="range"
                           min={1}
                           max={bookingTrip.category === 'apartments' ? 12 : 30}
@@ -2171,7 +2171,7 @@ export default function App() {
                       <span className="text-slate-500 uppercase">{lex.daysSlider}</span>
                       <strong className="text-teal-600">{bookingDays} {isAr ? 'أيام' : 'days'}</strong>
                     </div>
-                    <input 
+                    <input
                       type="range"
                       min={1}
                       max={14}
@@ -2184,7 +2184,7 @@ export default function App() {
                   {/* ID Scan copy upload box */}
                   <div className="space-y-2">
                     <span className="text-[10px] text-slate-400 font-extrabold block uppercase tracking-wider">{lex.uploadBoxTitle}</span>
-                    <div 
+                    <div
                       onClick={() => handleFileUploadMock('id')}
                       className="p-6 bg-slate-50 hover:bg-slate-100/80 border-2 border-dashed border-slate-200 hover:border-teal-500 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[90px] relative overflow-hidden group transition-all"
                     >
@@ -2210,8 +2210,8 @@ export default function App() {
                       <span className="text-slate-500 uppercase">{lex.guestSlider}</span>
                       <strong className="text-teal-600">{bookingGuests} {isAr ? 'أشخاص' : 'guests'}</strong>
                     </div>
-                    <input 
-                      type="range" 
+                    <input
+                      type="range"
                       min={1}
                       max={12}
                       value={bookingGuests}
@@ -2225,11 +2225,11 @@ export default function App() {
               {/* Shared full-name & Mobile credentials */}
               <div className="space-y-4 pt-2 border-t border-slate-100">
                 <span className="text-[10px] text-slate-400 font-extrabold block uppercase tracking-wider">{isAr ? 'بيانات التواصل الرسمي للحجز' : 'Contact official details'}</span>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase select-none">{lex.fullname}</label>
-                    <input 
+                    <input
                       type="text"
                       required
                       placeholder={isAr ? 'الاسم الثلاثي بالكامل' : 'Full Name'}
@@ -2240,7 +2240,7 @@ export default function App() {
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase select-none">{lex.phone}</label>
-                    <input 
+                    <input
                       type="tel"
                       required
                       placeholder="+963 933 111 222"
@@ -2303,7 +2303,7 @@ export default function App() {
               )}
 
               {/* Confirmation trigger */}
-              <button 
+              <button
                 type="submit"
                 className="w-full py-4 px-6 bg-gradient-to-r from-teal-600 to-indigo-600 hover:from-teal-700 hover:to-indigo-700 text-white font-bold rounded-xl text-sm shadow-md shadow-teal-600/10 cursor-pointer text-center"
               >
@@ -2316,7 +2316,7 @@ export default function App() {
       )}
 
       {/* MODAL CONTROLLER RENDER PIPELINE */}
-      <Modals 
+      <Modals
         lang={lang}
         loginOpen={loginModalOpen}
         signupOpen={signupModalOpen}
@@ -2331,10 +2331,10 @@ export default function App() {
       />
 
       {/* TOAST NOTIFIER SYSTEM */}
-      <Toasts 
-        lang={lang} 
-        toasts={toasts} 
-        onDismiss={handleDismissToast} 
+      <Toasts
+        lang={lang}
+        toasts={toasts}
+        onDismiss={handleDismissToast}
       />
 
     </div>
@@ -2344,8 +2344,8 @@ export default function App() {
 // Sparkles secondary icons fallback trigger
 const StarsIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-    <path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5.5z"/>
-    <path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z"/>
+    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+    <path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5.5z" />
+    <path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z" />
   </svg>
 );
