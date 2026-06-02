@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import traveloLogo from './assets/images/travelo_logo_1780422163382.png';
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Search, Menu, X, Globe, User, Bell, ChevronRight, ChevronLeft, 
@@ -933,7 +934,7 @@ export default function App() {
           >
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center shadow-xs shrink-0">
               <img 
-                src="/src/assets/images/travelo_logo_1780422163382.png" 
+                src={traveloLogo}
                 alt="Travelo" 
                 className="w-full h-full object-contain rounded-lg scale-[1.4]"
                 referrerPolicy="no-referrer"
@@ -1244,7 +1245,7 @@ export default function App() {
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-white rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center shadow-xs">
                   <img 
-                    src="/src/assets/images/travelo_logo_1780422163382.png" 
+                    src={traveloLogo}
                     alt="Travelo" 
                     className="w-full h-full object-contain rounded-lg scale-[1.4]"
                     referrerPolicy="no-referrer"
