@@ -174,7 +174,7 @@ export const MapContainer: React.FC<MapProps> = ({ locationQuery, locationName, 
         className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-xl text-sm font-semibold transition-all duration-200"
       >
         <ExternalLink className="w-4 h-4" />
-        <span>פתח ב-Google Maps / فتح في خرائط جوجل</span>
+        <span> Google Maps / فتح في خرائط جوجل</span>
       </a>
     </div>
   );
