@@ -2136,7 +2136,7 @@ export default function App() {
                       <button
                         type="button"
                         onClick={() => handleAddReview(selectedTrip.id)}
-                        className="w-full py-3 px-5 text-xs text-white font-bold bg-teal-650 hover:bg-teal-700 transition-colors rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2"
+                        className="w-full py-3 px-5 text-xs text-white font-extrabold bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 transition-all rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2 shadow-teal-600/10"
                       >
                         <span>🚀</span>
                         <span>{isAr ? 'نشر التعليق والتقييم بالنجوم والكتابة' : 'Publish Review'}</span>

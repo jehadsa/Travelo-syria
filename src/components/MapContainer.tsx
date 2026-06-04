@@ -44,9 +44,35 @@ export const MapContainer: React.FC<MapProps> = ({ locationQuery, locationName, 
     const L = (window as any).L;
     if (!L || !mapRef.current) return;
 
+    const safeRemoveMap = (mapInstance: any) => {
+      if (!mapInstance) return;
+      try {
+        // Close open popups to prevent Leaflet from trying to position unmounted popups
+        if (typeof mapInstance.closePopup === 'function') {
+          mapInstance.closePopup();
+        }
+        // Remove individual layers gracefully
+        if (typeof mapInstance.eachLayer === 'function') {
+          mapInstance.eachLayer((layer: any) => {
+            try {
+              mapInstance.removeLayer(layer);
+            } catch (e) {
+              // silent catch
+            }
+          });
+        }
+        // Finally, destroy the map container
+        if (typeof mapInstance.remove === 'function') {
+          mapInstance.remove();
+        }
+      } catch (error) {
+        console.warn("Safe map removal warning:", error);
+      }
+    };
+
     // Destroy existing instance to avoid duplicate map rendering containers error
     if (leafletInstance.current) {
-      leafletInstance.current.remove();
+      safeRemoveMap(leafletInstance.current);
       leafletInstance.current = null;
     }
 
@@ -97,7 +123,11 @@ export const MapContainer: React.FC<MapProps> = ({ locationQuery, locationName, 
 
       // Handle window redraw trigger to fit containers
       setTimeout(() => {
-        map.invalidateSize();
+        if (leafletInstance.current && typeof leafletInstance.current.invalidateSize === 'function') {
+          try {
+            leafletInstance.current.invalidateSize();
+          } catch (e) {}
+        }
       }, 300);
 
     } catch (e) {
@@ -106,7 +136,7 @@ export const MapContainer: React.FC<MapProps> = ({ locationQuery, locationName, 
 
     return () => {
       if (leafletInstance.current) {
-        leafletInstance.current.remove();
+        safeRemoveMap(leafletInstance.current);
         leafletInstance.current = null;
       }
     };
