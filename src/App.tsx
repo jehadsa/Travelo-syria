@@ -2,7 +2,7 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
-import traveloLogo from './assets/travelo_logo_1780422163382.png';
+import traveloLogo from './assets/images/travelo_logo_1780422163382.png';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { 
