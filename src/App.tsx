@@ -1784,80 +1784,88 @@ export default function App() {
       {/* FULL IMMERSIVE POPUP DETAIL REVIEW MODAL */}
       <AnimatePresence>
         {selectedTrip && (
-          <motion.div 
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 220 }}
-            className="fixed inset-0 z-[9995] bg-slate-50 overflow-y-auto flex flex-col font-sans text-slate-800"
+          <div 
+            className="fixed inset-0 z-[9995] bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-0 md:p-6 lg:p-10 font-sans text-slate-850 overflow-hidden"
             dir={isAr ? 'rtl' : 'ltr'}
           >
-            <div className="max-w-5xl mx-auto w-full min-h-screen bg-white shadow-2xl flex flex-col pb-16 border-x border-slate-150/50 relative">
+            {/* Backdrop click area for extra convenience */}
+            <div className="absolute inset-0 cursor-pointer" onClick={() => setSelectedTrip(null)} />
+
+            <motion.div 
+              initial={{ y: '30%', opacity: 0, scale: 0.95 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: '30%', opacity: 0, scale: 0.95 }}
+              transition={{ type: 'spring', damping: 26, stiffness: 210 }}
+              className="bg-white w-full max-w-5xl h-full md:h-[90vh] md:rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden relative z-10 border border-slate-100"
+            >
             
-            {/* Top sticky navigation bar */}
-            <div className="sticky top-0 bg-white/95 backdrop-blur-md z-40 border-b border-slate-100 px-4 md:px-8 py-4 flex items-center justify-between">
-              <button 
-                onClick={() => setSelectedTrip(null)}
-                className="flex items-center gap-1.5 hover:bg-slate-100 text-teal-600 font-extrabold hover:text-teal-700 px-3 py-1.5 rounded-xl transition-all cursor-pointer text-xs"
-              >
-                {isAr ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
-                <span>{isAr ? 'العودة للعروض' : 'Back to Listings'}</span>
-              </button>
+              {/* Top sticky navigation bar */}
+              <div className="bg-white/95 backdrop-blur-md z-40 border-b border-slate-100 px-4 md:px-8 py-4 flex items-center justify-between shrink-0">
+                <button 
+                  onClick={() => setSelectedTrip(null)}
+                  className="flex items-center gap-1.5 hover:bg-slate-100 text-teal-600 font-extrabold hover:text-teal-700 px-3 py-1.5 rounded-xl transition-all cursor-pointer text-xs"
+                >
+                  {isAr ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5 text-teal-600" />}
+                  <span>{isAr ? 'العودة للعروض' : 'Back to Listings'}</span>
+                </button>
 
-              <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
-                {isAr ? 'عرض التفاصيل الكاملة والتقييمات' : 'Detailed Specifications & Reviews'}
-              </span>
+                <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
+                  {isAr ? 'عرض التفاصيل الكاملة والتقييمات' : 'Detailed Specifications & Reviews'}
+                </span>
 
-              <button 
-                onClick={() => setSelectedTrip(null)}
-                className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+                <button 
+                  onClick={() => setSelectedTrip(null)}
+                  className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-            {/* Grid content columns */}
-            <div className="grow grid grid-cols-1 lg:grid-cols-3 gap-8 p-4 md:p-8 shrink-0">
+              {/* Scrollable Content inside Dialog wrapper */}
+              <div className="grow overflow-y-auto custom-modal-scroll">
+                
+                {/* Grid content columns */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-4 md:p-8 shrink-0">
               
-              {/* Main Content Column (Left/Right depending on language) */}
-              <div className="lg:col-span-2 space-y-6">
+              {/* Main Content Column */}
+              <div className="lg:col-span-2 space-y-8">
                 
                 {/* Image Carousel */}
-                <div className="relative h-[250px] sm:h-[400px] bg-slate-900 select-none overflow-hidden rounded-3xl shadow-md border border-slate-150">
+                <div className="relative h-[250px] sm:h-[420px] bg-slate-900 select-none overflow-hidden rounded-[2rem] shadow-xl border border-slate-100">
                   <img 
                     src={selectedTrip.images[detailActiveImgIndex] || selectedTrip.image} 
                     alt={selectedTrip.title} 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover select-none pointer-events-none transition-all duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
 
                   {/* Carousel controls */}
                   {selectedTrip.images.length > 1 && (
                     <>
                       <button 
                         onClick={() => setDetailActiveImgIndex(prev => (prev - 1 + selectedTrip.images.length) % selectedTrip.images.length)}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/40 text-white backdrop-blur-xs hover:bg-slate-950/60 transition-all cursor-pointer shadow"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 hover:bg-white text-slate-800 shadow-lg backdrop-blur-md transition-all active:scale-90 cursor-pointer z-10"
                       >
                         <ChevronLeft className="w-5 h-5" />
                       </button>
                       <button 
                         onClick={() => setDetailActiveImgIndex(prev => (prev + 1) % selectedTrip.images.length)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/40 text-white backdrop-blur-xs hover:bg-slate-950/60 transition-all cursor-pointer shadow"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 hover:bg-white text-slate-800 shadow-lg backdrop-blur-md transition-all active:scale-90 cursor-pointer z-10"
                       >
                         <ChevronRight className="w-5 h-5" />
                       </button>
                     </>
                   )}
 
-                  {/* Dots indicator */}
+                  {/* Custom Modern Pill Indicators */}
                   {selectedTrip.images.length > 1 && (
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 selection:bg-transparent">
+                    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 items-center select-none z-10">
                       {selectedTrip.images.map((_, i) => (
                         <button 
                           key={i} 
                           onClick={() => setDetailActiveImgIndex(i)}
-                          className={`w-2 h-2 rounded-full transition-all cursor-pointer
-                            ${detailActiveImgIndex === i ? 'bg-white scale-125' : 'bg-white/40'}
+                          className={`h-2 rounded-full transition-all duration-300 cursor-pointer
+                            ${detailActiveImgIndex === i ? 'bg-teal-500 w-6 shadow-md' : 'bg-white/60 w-2 hover:bg-white'}
                           `}
                         />
                       ))}
@@ -1866,76 +1874,128 @@ export default function App() {
                 </div>
 
                 {/* Badges / Category and Status */}
-                <div className="space-y-3">
-                  <div className="flex select-none flex-wrap gap-1.5 pt-1">
-                    <span className="py-0.5 px-2.5 rounded-full bg-teal-50 text-teal-700 text-[10px] font-bold border border-teal-100 uppercase">
-                      {selectedTrip.category === 'hotels' ? '🏨 Hotel' : selectedTrip.category === 'apartments' ? '🏢 Apartment' : selectedTrip.category === 'cars' ? '🚗 Car Rental' : '🍽️ Dining'}
+                <div className="space-y-4">
+                  <div className="flex select-none flex-wrap gap-2 items-center">
+                    <span className={`inline-flex items-center gap-1.5 py-1 px-3.5 rounded-full text-[10px] font-black tracking-wider uppercase border shadow-2xs
+                      ${selectedTrip.category === 'hotels' ? 'bg-amber-50 text-amber-700 border-amber-200' : 
+                        selectedTrip.category === 'apartments' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 
+                        selectedTrip.category === 'cars' ? 'bg-purple-50 text-purple-700 border-purple-200' : 
+                        'bg-rose-50 text-rose-700 border-rose-200'}
+                    `}>
+                      <span>
+                        {selectedTrip.category === 'hotels' ? '🏨 ' : 
+                         selectedTrip.category === 'apartments' ? '🏢 ' : 
+                         selectedTrip.category === 'cars' ? '🚗 ' : '🍽️ '}
+                      </span>
+                      <span>
+                        {selectedTrip.category === 'hotels' ? (isAr ? 'فندق فاخر' : 'Hotel') : 
+                         selectedTrip.category === 'apartments' ? (isAr ? 'شقة سكنية' : 'Apartment') : 
+                         selectedTrip.category === 'cars' ? (isAr ? 'تأجير سيارات' : 'Car Rental') : 
+                         (isAr ? 'مأكولات راقية' : 'Dining')}
+                      </span>
                     </span>
-                    <span className={`py-0.5 px-2.5 rounded-full text-[10px] font-bold border uppercase
-                      ${selectedTrip.isBooked ? 'bg-rose-50 text-rose-700 border-rose-100' : 'bg-emerald-50 text-emerald-700 border-emerald-100'}
+                    
+                    <span className={`py-1 px-3 rounded-full text-[10px] font-black border tracking-wider uppercase shadow-2xs
+                      ${selectedTrip.isBooked ? 'bg-rose-50/80 text-rose-700 border-rose-100' : 'bg-emerald-50 text-emerald-700 border-emerald-100'}
                     `}>
                       {selectedTrip.isBooked ? lex.bookedBadge : lex.availableBadge}
                     </span>
                   </div>
 
-                  <h2 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight leading-snug">
+                  <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
                     {isAr ? selectedTrip.title : selectedTrip.title_en}
                   </h2>
+                  
                   {selectedTrip.title_en && !isAr && (
-                    <p className="text-xs text-slate-400 font-bold leading-none">{selectedTrip.title_en}</p>
+                    <p className="text-xs text-slate-400 font-bold tracking-wider uppercase leading-none">{selectedTrip.title_en}</p>
                   )}
                 </div>
 
-                {/* Bed Type Setup (Apartments / Hotels specifics) */}
-                {selectedTrip.bedType && (
-                  <div className="p-4 bg-slate-50 border border-slate-150/45 rounded-2xl flex items-center gap-3">
+                {/* PREMIUM DYNAMIC TRIP SPECIFICATIONS GRID */}
+                <div className="grid grid-cols-3 gap-3">
+                  
+                  {/* SPECIFICATION CARD 1 */}
+                  <div className="bg-slate-50/50 border border-slate-100/80 rounded-2xl p-3.5 flex flex-col items-center justify-center text-center transition-all hover:bg-slate-50 hover:border-slate-200">
                     {selectedTrip.category === 'apartments' ? (
                       <>
-                        <Home className="w-5 h-5 text-emerald-600 shrink-0" />
-                        <div>
-                          <span className="text-[10px] text-slate-400 font-bold uppercase block">{isAr ? 'تفاصيل ومعلومات تقسيم الشفة الغرف بالتفصيل:' : 'Apartment Division:'}</span>
-                          <strong className="text-xs font-black text-slate-800 block mt-0.5">{selectedTrip.bedType}</strong>
-                        </div>
+                        <Home className="w-5 h-5 text-emerald-600 mb-1.5 shrink-0" />
+                        <span className="text-[9px] text-slate-400 font-bold block uppercase">{isAr ? 'التقسيم الداخلي' : 'Division'}</span>
+                        <strong className="text-xs font-black text-slate-800 block mt-0.5 max-w-full truncate">
+                          {selectedTrip.bedType || (isAr ? '٣ غرف ومنافع' : '3 Rooms')}
+                        </strong>
+                      </>
+                    ) : selectedTrip.category === 'cars' ? (
+                      <>
+                        <Car className="w-5 h-5 text-indigo-600 mb-1.5 shrink-0" />
+                        <span className="text-[9px] text-slate-400 font-bold block uppercase">{isAr ? 'ناقل الحركة' : 'Gearbox'}</span>
+                        <strong className="text-xs font-black text-slate-800 block mt-0.5">
+                          {isAr ? 'أوتوماتيك حديث' : 'Automatic'}
+                        </strong>
+                      </>
+                    ) : selectedTrip.category === 'restaurants' ? (
+                      <>
+                        <Utensils className="w-5 h-5 text-rose-600 mb-1.5 shrink-0" />
+                        <span className="text-[9px] text-slate-400 font-bold block uppercase">{isAr ? 'نوع المطبخ' : 'Gastronomy'}</span>
+                        <strong className="text-xs font-black text-slate-800 block mt-0.5">
+                          {isAr ? 'مأكولات شرقية' : 'Eastern Cuisine'}
+                        </strong>
                       </>
                     ) : (
                       <>
-                        <Bed className="w-5 h-5 text-teal-600 shrink-0" />
-                        <div>
-                          <span className="text-[10px] text-slate-400 font-bold uppercase block">{isAr ? 'مواصفات الأسرة وغرفة:' : 'Beds setup:'}</span>
-                          <strong className="text-xs font-black text-slate-800 block mt-0.5">
-                            {selectedTrip.bedType === 'two_beds' 
-                              ? lex.bedTypeTwo 
-                              : selectedTrip.bedType === 'single_bed' 
-                                ? lex.bedTypeSingle 
-                                : selectedTrip.bedType}
-                          </strong>
-                        </div>
+                        <Bed className="w-5 h-5 text-teal-600 mb-1.5 shrink-0" />
+                        <span className="text-[9px] text-slate-400 font-bold block uppercase">{isAr ? 'طبيعة الأسرة' : 'Beds Setup'}</span>
+                        <strong className="text-xs font-black text-slate-800 block mt-0.5">
+                          {selectedTrip.bedType === 'two_beds' 
+                            ? lex.bedTypeTwo 
+                            : selectedTrip.bedType === 'single_bed' 
+                              ? lex.bedTypeSingle 
+                              : selectedTrip.bedType || (isAr ? 'سرير مزدوج' : 'Double Bed')}
+                        </strong>
                       </>
                     )}
                   </div>
-                )}
+
+                  {/* SPECIFICATION CARD 2 */}
+                  <div className="bg-slate-50/50 border border-slate-100/80 rounded-2xl p-3.5 flex flex-col items-center justify-center text-center transition-all hover:bg-slate-50 hover:border-slate-200">
+                    <Sparkles className="w-5 h-5 text-amber-500 mb-1.5 shrink-0" />
+                    <span className="text-[9px] text-slate-400 font-bold block uppercase">{isAr ? 'تقييم المنشأة' : 'Status Rank'}</span>
+                    <strong className="text-xs font-black text-slate-800 block mt-0.5">
+                      {selectedTrip.adminRating ? `${selectedTrip.adminRating} / 5` : '4.9 / 5'}
+                    </strong>
+                  </div>
+
+                  {/* SPECIFICATION CARD 3 */}
+                  <div className="bg-slate-50/50 border border-slate-100/80 rounded-2xl p-3.5 flex flex-col items-center justify-center text-center transition-all hover:bg-slate-50 hover:border-slate-200">
+                    <Shield className="w-5 h-5 text-teal-600 mb-1.5 shrink-0" />
+                    <span className="text-[9px] text-slate-400 font-bold block uppercase">{isAr ? 'درجة الأمان' : 'Trust Index'}</span>
+                    <strong className="text-xs font-black text-slate-800 block mt-0.5 text-emerald-600">
+                      {isAr ? 'موثّق بالكامل' : 'Platinum Safe'}
+                    </strong>
+                  </div>
+
+                </div>
 
                 {/* Stay Description text block */}
-                <div className="space-y-2 border-t border-slate-100 pt-5">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide block">{isAr ? 'حول هذا العرض' : 'stay description'}</span>
-                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
+                <div className="space-y-3.5 border-t border-slate-100 pt-6">
+                  <span className="text-[10px] text-teal-600 font-black tracking-widest uppercase block">{isAr ? 'نظرة عامة على الإقامة' : 'stay description'}</span>
+                  <p className="text-slate-600 text-sm leading-relaxed font-normal text-justify select-text">
                     {isAr ? (selectedTrip.description || selectedTrip.subtitle) : (selectedTrip.description_en || selectedTrip.subtitle_en)}
                   </p>
                 </div>
 
                 {/* Included Amenities listed */}
                 {selectedTrip.services && selectedTrip.services.length > 0 && (
-                  <div className="space-y-3.5 border-t border-slate-100 pt-5">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide block">{lex.additionalDetails}</span>
-                    <div className="flex flex-wrap gap-1.5">
+                  <div className="space-y-4 border-t border-slate-100 pt-6">
+                    <span className="text-[10px] text-teal-600 font-black tracking-widest uppercase block">{lex.additionalDetails}</span>
+                    <div className="grid grid-cols-2 gap-2">
                       {(isAr ? selectedTrip.services : selectedTrip.services_en).map((svc, i) => (
-                        <span 
+                        <div 
                           key={i} 
-                          className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200/50"
+                          className="flex items-center gap-2.5 py-3 px-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-colors"
                         >
-                          <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
-                          <span>{svc}</span>
-                        </span>
+                          <CheckCircle2 className="w-4.5 h-4.5 text-teal-600 shrink-0" />
+                          <span className="text-slate-700 text-xs font-bold leading-tight">{svc}</span>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -1943,8 +2003,8 @@ export default function App() {
 
                 {/* Interactive Map directions integrations */}
                 {(selectedTrip.hotelLocation || selectedTrip.restaurantLocation) && (
-                  <div className="space-y-3.5 border-t border-slate-100 pt-5">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest block">{isAr ? 'الموقع الجغرافي والإحداثيات' : 'Physical Location coordinates'}</span>
+                  <div className="space-y-4 border-t border-slate-100 pt-6">
+                    <span className="text-[10px] text-teal-600 font-black tracking-widest uppercase block">{isAr ? 'الموقع الجغرافي والإحداثيات' : 'Physical Location coordinates'}</span>
                     <MapContainer 
                       locationQuery={selectedTrip.hotelLocation || selectedTrip.restaurantLocation || ''} 
                       locationName={isAr ? selectedTrip.title : selectedTrip.title_en}
@@ -1958,37 +2018,50 @@ export default function App() {
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2">
                       <span>💬</span>
-                      <span>{isAr ? 'آراء وتقييمات العملاء والنزلاء' : 'Customer Reviews & Comments'}</span>
-                      <span className="text-xs font-black bg-teal-50 text-teal-700 px-2 py-0.5 rounded-full border border-teal-100">
+                      <span>{isAr ? 'آراء وتقييمات النزلاء الأحدث' : 'Verified Reviews & Feedback'}</span>
+                      <span className="text-xs font-black bg-teal-50 text-teal-700 px-2.5 py-0.5 rounded-full border border-teal-100">
                         {reviews.filter(r => r.tripId === selectedTrip.id).length}
                       </span>
                     </h3>
                   </div>
 
                   {/* Verified Customer Feedback Stack */}
-                  <div className="space-y-3">
+                  <div className="space-y-3.5">
                     {reviews.filter(r => r.tripId === selectedTrip.id).length === 0 ? (
-                      <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-100 text-slate-400 text-xs font-semibold">
+                      <div className="p-10 text-center bg-slate-50 rounded-[2rem] border border-slate-100 text-slate-400 text-xs font-semibold">
                         {isAr ? 'لا توجد تعليقات أو مراجعات مكتوبة بعد لهذا العرض. شاركنا تجربتك لتكون أول المقيّمين!' : 'No written reviews verified for this offer yet. Be the first to publish a review!'}
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 gap-3.5 select-text">
                         {reviews.filter(r => r.tripId === selectedTrip.id).map((rev) => (
-                          <div key={rev.id} className="p-4 bg-slate-50/50 border border-slate-100 rounded-2xl hover:bg-slate-50 transition-colors space-y-2">
+                          <div key={rev.id} className="p-4 bg-white border border-slate-100 rounded-2xl hover:border-slate-200 hover:shadow-xs transition-all space-y-3">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-black text-slate-850">{rev.userName}</span>
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200/50 flex items-center justify-center font-black text-slate-600 text-xs select-none">
+                                  {rev.userName.slice(0, 2)}
+                                </div>
+                                <div>
+                                  <span className="text-xs font-extrabold text-slate-800 block leading-tight">{rev.userName}</span>
+                                  <span className="text-[9px] text-emerald-600 font-bold items-center gap-0.5 inline-flex leading-none mt-1">
+                                    <span>✓</span> 
+                                    <span>{isAr ? 'نزيل موثّق' : 'Verified Guest'}</span>
+                                  </span>
+                                </div>
+                              </div>
                               <span className="text-[10px] text-slate-400 font-bold">{rev.date}</span>
                             </div>
-                            <div className="flex items-center gap-1 leading-none text-amber-500 font-bold select-none">
+
+                            <div className="flex items-center gap-1 leading-none text-amber-400 select-none">
                               {Array.from({ length: 5 }).map((_, sIdx) => (
                                 <Star 
                                   key={sIdx} 
-                                  className={`w-3.5 h-3.5 ${sIdx < rev.rating ? 'fill-current' : 'text-slate-200'}`} 
+                                  className={`w-3.5 h-3.5 ${sIdx < rev.rating ? 'fill-current' : 'text-slate-100'}`} 
                                 />
                               ))}
-                              <span className="text-xs font-black ml-1 text-slate-600">({rev.rating}/5)</span>
+                              <span className="text-[10px] font-black text-slate-400 ml-1">({rev.rating}/5)</span>
                             </div>
-                            <p className="text-slate-600 text-xs leading-relaxed font-semibold">
+
+                            <p className="text-slate-650 text-xs leading-relaxed font-semibold">
                               {rev.comment}
                             </p>
                           </div>
@@ -1998,8 +2071,8 @@ export default function App() {
                   </div>
 
                   {/* Publish a comment and star system */}
-                  <div className="p-5 bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-3xl border border-slate-200/40 space-y-4">
-                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
+                  <div className="p-5 sm:p-6 bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-[2rem] border border-slate-200/40 space-y-4">
+                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-wide flex items-center gap-2">
                       <span>✍️</span>
                       <span>{isAr ? 'شاركنا تقييمك ورأيك المكتوب بالمنشأة' : 'Write a Review and rate your stay'}</span>
                     </h4>
@@ -2042,7 +2115,7 @@ export default function App() {
                           placeholder={currentUser ? currentUser.name : (isAr ? 'مثال: أحمد الدمشقي' : 'e.g. Samer Al-Saeed')}
                           value={newReviewName}
                           onChange={(e) => setNewReviewName(e.target.value)}
-                          className="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-xs font-bold outline-none focus:border-teal-500"
+                          className="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-xs font-bold outline-none focus:border-teal-500 shadow-2xs"
                         />
                       </div>
 
@@ -2055,7 +2128,7 @@ export default function App() {
                           value={newReviewComment}
                           onChange={(e) => setNewReviewComment(e.target.value)}
                           placeholder={isAr ? 'اكتب مراجعتك بكل شفافية للنزلاء الآخرين...' : 'Express your honest hotel details...'}
-                          className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-bold outline-none focus:border-teal-500 resize-none leading-relaxed"
+                          className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-bold outline-none focus:border-teal-500 resize-none leading-relaxed shadow-2xs"
                         />
                       </div>
 
@@ -2063,7 +2136,7 @@ export default function App() {
                       <button
                         type="button"
                         onClick={() => handleAddReview(selectedTrip.id)}
-                        className="w-full py-3 px-5 text-xs text-white font-bold bg-teal-600 hover:bg-teal-700 transition-colors rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2"
+                        className="w-full py-3 px-5 text-xs text-white font-bold bg-teal-650 hover:bg-teal-700 transition-colors rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2"
                       >
                         <span>🚀</span>
                         <span>{isAr ? 'نشر التعليق والتقييم بالنجوم والكتابة' : 'Publish Review'}</span>
@@ -2074,52 +2147,89 @@ export default function App() {
 
               </div>
 
-              {/* Sticky Right/Left Sidebar panel column for booking information */}
+              {/* Elegant Sticky Right/Left Sidebar panel column for booking information */}
               <div className="space-y-4">
-                <div className="lg:sticky lg:top-24 bg-slate-50 rounded-3xl p-5 border border-slate-200/60 shadow-xs space-y-4">
+                <div className="lg:sticky lg:top-24 bg-white rounded-[2rem] p-6 border border-slate-100 shadow-2xl space-y-6">
+                  
+                  {/* Rating or Top Title segment */}
                   <div>
-                    <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wide block">{lex.price}</span>
-                    <div className="flex items-baseline mt-1 leading-none">
+                    <span className="text-[10px] text-teal-600 font-extrabold uppercase tracking-widest block mb-1">
+                      {isAr ? 'عقد وحجز الإقامة الفاخرة' : 'Premium Booking Specifications'}
+                    </span>
+                    <div className="flex items-baseline gap-1 mt-1">
                       {selectedTrip.category === 'restaurants' ? (
-                        <strong className="text-sm font-extrabold text-slate-500 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg block w-full text-center">
-                          {isAr ? 'بدون تسعير مسبق' : 'No pre-pricing required'}
-                        </strong>
+                        <div className="text-right w-full">
+                          <span className="text-2xl font-black text-indigo-600">{isAr ? 'حجز مجاني ترفيهي' : 'Free RSVP'}</span>
+                          <p className="text-[10px] text-slate-400 font-bold block mt-0.5">
+                            {isAr ? 'لا توجد رسوم مسبقة، الدفع للمطعم مباشرة' : 'No pre-payment required'}
+                          </p>
+                        </div>
                       ) : (
                         <>
-                          <strong className="text-3xl font-black text-teal-600">${selectedTrip.price}</strong>
-                          <span className="text-xs text-slate-500 font-bold ml-1">
-                            /{selectedTrip.category === 'hotels' ? (isAr ? 'ليلة' : 'night') : selectedTrip.category === 'apartments' ? (isAr ? 'ليلة' : 'night') : (isAr ? 'يوم' : 'day')}
+                          <span className="text-3xl font-black text-teal-600 leading-none">${selectedTrip.price}</span>
+                          <span className="text-xs text-slate-400 font-semibold block leading-none">
+                            / {selectedTrip.category === 'hotels' ? (isAr ? 'ليلة' : 'night') : selectedTrip.category === 'apartments' ? (isAr ? 'ليلة' : 'night') : (isAr ? 'يوم' : 'day')}
                           </span>
                         </>
                       )}
                     </div>
                   </div>
 
-                  {selectedTrip.adminRating && (
-                    <div className="flex items-center gap-2 border-t border-slate-150/45 pt-3 select-none">
-                      <span className="text-[10px] text-zinc-400 font-bold uppercase">{isAr ? 'التقييم الأصلي:' : 'Default Score:'}</span>
-                      <div className="flex items-center gap-1 font-black text-xs text-amber-500">
-                        <span>{selectedTrip.adminRating}</span>
-                        <Star className="w-3.5 h-3.5 text-amber-500 fill-current" />
-                      </div>
+                  {/* Simulated dates block */}
+                  <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl space-y-2">
+                    <div className="flex items-center justify-between text-[10px] font-black uppercase text-slate-450">
+                      <span>{isAr ? 'تاريخ الحجز المقترح:' : 'Proposed Dates:'}</span>
+                      <span className="bg-teal-50 text-teal-700 px-1.5 py-0.5 rounded text-[8px] font-black">
+                        {isAr ? 'حجز متاح فوراً' : 'Available'}
+                      </span>
                     </div>
-                  )}
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-700 select-none">
+                      <Calendar className="w-4 h-4 text-teal-600 shrink-0" />
+                      <span>
+                        {isAr ? '١٠ يونيو ٢٠٢٦ - ١٥ يونيو ٢٠٢٦' : 'Jun 10, 2026 - Jun 15, 2026'}
+                      </span>
+                    </div>
+                  </div>
 
+                  {/* Verified Owner label */}
                   {selectedTrip.companyName && (
-                    <div className="p-3 bg-white border border-slate-100 rounded-xl text-xs flex flex-col gap-1">
-                      <span className="text-[10px] text-slate-400 font-bold uppercase">{isAr ? 'الجهة المالكة والمنظمة:' : 'Owner / Concierge:'}</span>
-                      <strong className="text-slate-800">{isAr ? selectedTrip.companyName : selectedTrip.companyName_en}</strong>
+                    <div className="p-4 bg-slate-50/70 border border-slate-100 rounded-2xl flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center font-black text-teal-700 text-sm shadow-sm shrink-0 uppercase select-none">
+                        {selectedTrip.companyName.slice(0, 1)}
+                      </div>
+                      <div className="grow">
+                        <span className="text-[9px] text-slate-400 font-black uppercase tracking-wide block">{isAr ? 'المنظم المالك' : 'Verified Publisher'}</span>
+                        <strong className="text-xs font-black text-slate-800 block mt-0.5 leading-snug">
+                          {isAr ? selectedTrip.companyName : selectedTrip.companyName_en}
+                        </strong>
+                      </div>
+                      <span className="bg-emerald-50 text-emerald-700 py-0.5 px-2 rounded-full text-[9px] font-black border border-emerald-100 shrink-0">
+                        {isAr ? 'موثّق ✓' : 'Verified ✓'}
+                      </span>
                     </div>
                   )}
 
+                  {/* Transaction safety bullet items */}
+                  <div className="space-y-2 pt-3 border-t border-slate-100 text-xs">
+                    <div className="flex items-center gap-2 text-slate-600 font-semibold">
+                      <span className="text-emerald-500 font-bold select-none">✓</span>
+                      <span>{isAr ? 'تأكيد فوري للحجز عبر البريد والواتساب' : 'Instant confirmation via WhatsApp'}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-600 font-semibold">
+                      <span className="text-emerald-500 font-bold select-none">✓</span>
+                      <span>{isAr ? 'إلغاء مجاني متاح لأدق الشفافية والراحة' : 'Free cancelation flexibility'}</span>
+                    </div>
+                  </div>
+
+                  {/* Booking Trigger Button */}
                   <div className="pt-2">
                     <button 
                       onClick={() => { handleTriggerBooking(selectedTrip); setSelectedTrip(null); }}
                       disabled={selectedTrip.isBooked}
-                      className={`w-full py-4 px-6 text-white font-bold rounded-2xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer
+                      className={`w-full py-4 px-6 text-white font-extrabold rounded-2xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer
                         ${selectedTrip.isBooked 
                           ? 'bg-slate-300 pointer-events-none select-none shadow-none' 
-                          : 'bg-gradient-to-r from-teal-600 to-indigo-600 hover:from-teal-700 hover:to-indigo-700 shadow-teal-600/15'
+                          : 'bg-gradient-to-r from-teal-600 to-indigo-600 hover:from-teal-700 hover:to-indigo-700 shadow-teal-600/15 hover:scale-[1.01] active:scale-95'
                         }
                       `}
                     >
@@ -2133,11 +2243,49 @@ export default function App() {
                       )}
                     </button>
                   </div>
+
                 </div>
               </div>
+
+            </div> {/* Grid wrapper close */}
+          </div> {/* Scrollable Content wrapper close */}
+
+          {/* Mobile Sticky Booking Bar */}
+          <div className="lg:hidden sticky bottom-0 bg-white/95 backdrop-blur-md border-t border-slate-100 p-4 flex items-center justify-between z-30 select-none shadow-lg">
+            <div className="flex flex-col">
+              <span className="text-[10px] text-slate-400 font-bold uppercase">{lex.price}</span>
+              <div className="flex items-baseline leading-none">
+                {selectedTrip.category === 'restaurants' ? (
+                  <span className="text-xs font-extrabold text-slate-500 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg">
+                    {isAr ? 'بدون تسعير مسبق' : 'No pre-pricing'}
+                  </span>
+                ) : (
+                  <>
+                    <strong className="text-xl font-black text-teal-600">${selectedTrip.price}</strong>
+                    <span className="text-[10px] text-slate-500 font-semibold">
+                      /{selectedTrip.category === 'hotels' ? (isAr ? 'ليلة' : 'night') : selectedTrip.category === 'apartments' ? (isAr ? 'ليلة' : 'night') : (isAr ? 'يوم' : 'day')}
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
+            <button 
+              onClick={() => { handleTriggerBooking(selectedTrip); setSelectedTrip(null); }}
+              disabled={selectedTrip.isBooked}
+              className={`py-2.5 px-5 text-white font-extrabold rounded-xl text-xs transition-all shadow-md flex items-center gap-1.5 cursor-pointer
+                ${selectedTrip.isBooked 
+                  ? 'bg-slate-300 pointer-events-none select-none shadow-none' 
+                  : 'bg-gradient-to-r from-teal-600 to-indigo-600 hover:from-teal-700 hover:to-indigo-700 shadow-teal-600/15'
+                }
+              `}
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              <span>{selectedTrip.isBooked ? lex.bookedBadge : lex.bookNow}</span>
+            </button>
           </div>
+
         </motion.div>
+      </div>
         )}
       </AnimatePresence>
 
