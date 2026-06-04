@@ -113,6 +113,58 @@ export default function App() {
     }
   }, [favorites]);
 
+  // Reviews dynamic state corresponding to unique listings
+  const [reviews, setReviews] = useState<any[]>(() => {
+    try {
+      const stored = localStorage.getItem('travelo_reviews');
+      if (stored) return JSON.parse(stored);
+    } catch (e) {}
+    // default reviews list or empty
+    return [
+      { id: 'rev-1', tripId: '1', userName: 'أحمد علي', rating: 5, comment: 'فندق مذهل وإطلالة ساحرة جداً غاية في الهدوء والرفاهية. الخدمة سريعة وممتازة والأسرة في غاية الراحة والنظافة.', date: '2026-05-12' },
+      { id: 'rev-2', tripId: '1', userName: 'ريم السعيد', rating: 4, comment: 'فندق جميل وهادئ، الغرفة كانت نظيفة جداً والمعاملة راقية واستمتعنا كثيراً بإقامتنا هنا وبالمرافق الفاخرة المتاحة.', date: '2026-05-20' },
+      { id: 'rev-3', tripId: '2', userName: 'محمد الحمصي', rating: 5, comment: 'سيارة نظيفة وجاهزة تماماً، وسرعة في استكمال الإجراءات والمعاملة احترافية جداً ومريحة لأبعد الحدود.', date: '2026-05-25' },
+      { id: 'rev-4', tripId: '3', userName: 'سارة دمشق', rating: 5, comment: 'أجواء دمشقية تقليدية ساحرة، والطعام شهي ومميز وخاصة الفتة الشامية واللحوم المشوية رائعة ومذهلة!', date: '2026-05-28' },
+    ];
+  });
+
+  // State fields for the active review input form
+  const [newReviewName, setNewReviewName] = useState('');
+  const [newReviewRating, setNewReviewRating] = useState<number>(5);
+  const [newReviewComment, setNewReviewComment] = useState('');
+
+  // Handle submitting reviews
+  const handleAddReview = (tripId: string) => {
+    if (!newReviewComment.trim()) return;
+    const nameToUse = newReviewName.trim() || (currentUser ? currentUser.name : (lang === 'ar' ? 'زائر كرم' : 'Valued Guest'));
+    const newRatingItem = {
+      id: 'rev-' + Date.now(),
+      tripId,
+      userName: nameToUse,
+      rating: newReviewRating,
+      comment: newReviewComment.trim(),
+      date: new Date().toISOString().split('T')[0]
+    };
+
+    const updatedReviews = [newRatingItem, ...reviews];
+    setReviews(updatedReviews);
+    localStorage.setItem('travelo_reviews', JSON.stringify(updatedReviews));
+
+    // Reset fields
+    setNewReviewName('');
+    setNewReviewComment('');
+    setNewReviewRating(5);
+
+    handleShowToast(
+      '⭐️',
+      'تمت إضافة تعليقك وتقييمك بنجاح!',
+      'Review submitted successfully!',
+      lang === 'ar' ? 'شكراً لمشاركتك رأيك القيّم معنا في ترافيلو.' : 'Thank you for sharing your valuable thoughts with Travelo.',
+      lang === 'ar' ? 'سيظهر تعليقك فوراً للجميع لخدمة أدق تفاصيل الشفافية.' : 'Your feed is live in our guest activity transparent index.',
+      '#0d9488'
+    );
+  };
+
   // Global Theme (Light/Dark Mode) State
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     try {
@@ -1733,195 +1785,360 @@ export default function App() {
       <AnimatePresence>
         {selectedTrip && (
           <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9990] p-4 flex items-center justify-center bg-slate-950/60 backdrop-blur-md select-none"
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 220 }}
+            className="fixed inset-0 z-[9995] bg-slate-50 overflow-y-auto flex flex-col font-sans text-slate-800"
+            dir={isAr ? 'rtl' : 'ltr'}
           >
-            <motion.div 
-              initial={{ opacity: 0, y: 50, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 45, scale: 0.95 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-              className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-2xl max-w-lg w-full max-h-[92vh] sm:max-h-[90vh] overflow-y-auto custom-modal-scroll relative"
-            >
+            <div className="max-w-5xl mx-auto w-full min-h-screen bg-white shadow-2xl flex flex-col pb-16 border-x border-slate-150/50 relative">
             
-            {/* Close trigger button */}
-            <button 
-              onClick={() => setSelectedTrip(null)}
-              className="absolute top-4 right-4 z-20 p-2 rounded-full bg-slate-900/60 hover:bg-slate-900/90 text-white backdrop-blur-sm transition-colors cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            {/* Top sticky navigation bar */}
+            <div className="sticky top-0 bg-white/95 backdrop-blur-md z-40 border-b border-slate-100 px-4 md:px-8 py-4 flex items-center justify-between">
+              <button 
+                onClick={() => setSelectedTrip(null)}
+                className="flex items-center gap-1.5 hover:bg-slate-100 text-teal-600 font-extrabold hover:text-teal-700 px-3 py-1.5 rounded-xl transition-all cursor-pointer text-xs"
+              >
+                {isAr ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
+                <span>{isAr ? 'العودة للعروض' : 'Back to Listings'}</span>
+              </button>
 
-            {/* Slider carousel header list */}
-            <div className="relative h-40 sm:h-48 bg-slate-900 select-none">
-              <img 
-                src={selectedTrip.images[detailActiveImgIndex] || selectedTrip.image} 
-                alt={selectedTrip.title} 
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
+              <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
+                {isAr ? 'عرض التفاصيل الكاملة والتقييمات' : 'Detailed Specifications & Reviews'}
+              </span>
 
-              {/* Slider Controls */}
-              {selectedTrip.images.length > 1 && (
-                <>
-                  <button 
-                    onClick={() => setDetailActiveImgIndex(prev => (prev - 1 + selectedTrip.images.length) % selectedTrip.images.length)}
-                    className="absolute inset-y-auto left-4 p-2 rounded-full bg-white/20 select-none text-white backdrop-blur-sm hover:bg-white/45 transition-all cursor-pointer shadow"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <button 
-                    onClick={() => setDetailActiveImgIndex(prev => (prev + 1) % selectedTrip.images.length)}
-                    className="absolute inset-y-auto right-4 p-2 rounded-full bg-white/20 select-none text-white backdrop-blur-sm hover:bg-white/45 transition-all cursor-pointer shadow"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                </>
-              )}
-
-              {/* Dots index tracker indicator list */}
-              {selectedTrip.images.length > 1 && (
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 selection:bg-transparent">
-                  {selectedTrip.images.map((_, i) => (
-                    <button 
-                      key={i} 
-                      onClick={() => setDetailActiveImgIndex(i)}
-                      className={`w-2 h-2 rounded-full transition-all cursor-pointer
-                        ${detailActiveImgIndex === i ? 'bg-white scale-125' : 'bg-white/40'}
-                      `}
-                    />
-                  ))}
-                </div>
-              )}
+              <button 
+                onClick={() => setSelectedTrip(null)}
+                className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            {/* Detail Body */}
-            <div className="p-4 sm:p-5 space-y-3.5">
-              <div className="space-y-1">
-                <div className="flex select-none flex-wrap gap-1.5 pb-1">
-                  <span className="py-0.5 px-2.5 rounded-full bg-teal-50 text-teal-700 text-[10px] font-bold border border-teal-100 uppercase">
-                    {selectedTrip.category === 'hotels' ? '🏨 Hotel' : selectedTrip.category === 'cars' ? '🚗 Car Rental' : '🍽️ Dining'}
-                  </span>
-                  <span className={`py-0.5 px-2.5 rounded-full text-[10px] font-bold border uppercase
-                    ${selectedTrip.isBooked ? 'bg-rose-50 text-rose-700 border-rose-100' : 'bg-emerald-50 text-emerald-700 border-emerald-100'}
-                  `}>
-                    {selectedTrip.isBooked ? lex.bookedBadge : lex.availableBadge}
-                  </span>
-                </div>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
-                  {isAr ? selectedTrip.title : selectedTrip.title_en}
-                </h3>
-                {selectedTrip.title_en && !isAr && (
-                  <p className="text-xs text-slate-400 font-bold leading-none">{selectedTrip.title_en}</p>
-                )}
-              </div>
+            {/* Grid content columns */}
+            <div className="grow grid grid-cols-1 lg:grid-cols-3 gap-8 p-4 md:p-8 shrink-0">
+              
+              {/* Main Content Column (Left/Right depending on language) */}
+              <div className="lg:col-span-2 space-y-6">
+                
+                {/* Image Carousel */}
+                <div className="relative h-[250px] sm:h-[400px] bg-slate-900 select-none overflow-hidden rounded-3xl shadow-md border border-slate-150">
+                  <img 
+                    src={selectedTrip.images[detailActiveImgIndex] || selectedTrip.image} 
+                    alt={selectedTrip.title} 
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
 
-              {/* Details pricing / stars row */}
-              <div className="flex px-4 py-2 bg-slate-50 border border-slate-100 rounded-2xl items-center justify-between">
-                <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block leading-none">{lex.price}</span>
-                  <div className="flex items-baseline mt-1 leading-none">
-                    {selectedTrip.category === 'restaurants' ? (
-                      <strong className="text-sm font-extrabold text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-lg">
-                        {isAr ? 'بدون تسعير' : 'No pre-pricing required'}
-                      </strong>
+                  {/* Carousel controls */}
+                  {selectedTrip.images.length > 1 && (
+                    <>
+                      <button 
+                        onClick={() => setDetailActiveImgIndex(prev => (prev - 1 + selectedTrip.images.length) % selectedTrip.images.length)}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/40 text-white backdrop-blur-xs hover:bg-slate-950/60 transition-all cursor-pointer shadow"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <button 
+                        onClick={() => setDetailActiveImgIndex(prev => (prev + 1) % selectedTrip.images.length)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/40 text-white backdrop-blur-xs hover:bg-slate-950/60 transition-all cursor-pointer shadow"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </>
+                  )}
+
+                  {/* Dots indicator */}
+                  {selectedTrip.images.length > 1 && (
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 selection:bg-transparent">
+                      {selectedTrip.images.map((_, i) => (
+                        <button 
+                          key={i} 
+                          onClick={() => setDetailActiveImgIndex(i)}
+                          className={`w-2 h-2 rounded-full transition-all cursor-pointer
+                            ${detailActiveImgIndex === i ? 'bg-white scale-125' : 'bg-white/40'}
+                          `}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Badges / Category and Status */}
+                <div className="space-y-3">
+                  <div className="flex select-none flex-wrap gap-1.5 pt-1">
+                    <span className="py-0.5 px-2.5 rounded-full bg-teal-50 text-teal-700 text-[10px] font-bold border border-teal-100 uppercase">
+                      {selectedTrip.category === 'hotels' ? '🏨 Hotel' : selectedTrip.category === 'apartments' ? '🏢 Apartment' : selectedTrip.category === 'cars' ? '🚗 Car Rental' : '🍽️ Dining'}
+                    </span>
+                    <span className={`py-0.5 px-2.5 rounded-full text-[10px] font-bold border uppercase
+                      ${selectedTrip.isBooked ? 'bg-rose-50 text-rose-700 border-rose-100' : 'bg-emerald-50 text-emerald-700 border-emerald-100'}
+                    `}>
+                      {selectedTrip.isBooked ? lex.bookedBadge : lex.availableBadge}
+                    </span>
+                  </div>
+
+                  <h2 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight leading-snug">
+                    {isAr ? selectedTrip.title : selectedTrip.title_en}
+                  </h2>
+                  {selectedTrip.title_en && !isAr && (
+                    <p className="text-xs text-slate-400 font-bold leading-none">{selectedTrip.title_en}</p>
+                  )}
+                </div>
+
+                {/* Bed Type Setup (Apartments / Hotels specifics) */}
+                {selectedTrip.bedType && (
+                  <div className="p-4 bg-slate-50 border border-slate-150/45 rounded-2xl flex items-center gap-3">
+                    {selectedTrip.category === 'apartments' ? (
+                      <>
+                        <Home className="w-5 h-5 text-emerald-600 shrink-0" />
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-bold uppercase block">{isAr ? 'تفاصيل ومعلومات تقسيم الشفة الغرف بالتفصيل:' : 'Apartment Division:'}</span>
+                          <strong className="text-xs font-black text-slate-800 block mt-0.5">{selectedTrip.bedType}</strong>
+                        </div>
+                      </>
                     ) : (
                       <>
-                        <strong className="text-xl sm:text-2xl font-black text-teal-600">${selectedTrip.price}</strong>
-                        <span className="text-xs text-slate-400">
-                          /{selectedTrip.category === 'hotels' ? (isAr ? 'ليلة' : 'night') : selectedTrip.category === 'apartments' ? (isAr ? 'شهر' : 'month') : (isAr ? 'يوم' : 'day')}
-                        </span>
+                        <Bed className="w-5 h-5 text-teal-600 shrink-0" />
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-bold uppercase block">{isAr ? 'مواصفات الأسرة وغرفة:' : 'Beds setup:'}</span>
+                          <strong className="text-xs font-black text-slate-800 block mt-0.5">
+                            {selectedTrip.bedType === 'two_beds' 
+                              ? lex.bedTypeTwo 
+                              : selectedTrip.bedType === 'single_bed' 
+                                ? lex.bedTypeSingle 
+                                : selectedTrip.bedType}
+                          </strong>
+                        </div>
                       </>
                     )}
                   </div>
+                )}
+
+                {/* Stay Description text block */}
+                <div className="space-y-2 border-t border-slate-100 pt-5">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide block">{isAr ? 'حول هذا العرض' : 'stay description'}</span>
+                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
+                    {isAr ? (selectedTrip.description || selectedTrip.subtitle) : (selectedTrip.description_en || selectedTrip.subtitle_en)}
+                  </p>
                 </div>
 
-                {selectedTrip.adminRating && (
-                  <div className="text-right">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase block leading-none">{lex.rating}</span>
-                    <div className="flex items-center gap-1.25 mt-1">
-                      <strong className="text-sm font-black text-amber-500 leading-none">{selectedTrip.adminRating}</strong>
-                      <Star className="w-3.5 h-3.5 text-amber-500 fill-current leading-none" />
+                {/* Included Amenities listed */}
+                {selectedTrip.services && selectedTrip.services.length > 0 && (
+                  <div className="space-y-3.5 border-t border-slate-100 pt-5">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide block">{lex.additionalDetails}</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(isAr ? selectedTrip.services : selectedTrip.services_en).map((svc, i) => (
+                        <span 
+                          key={i} 
+                          className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200/50"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                          <span>{svc}</span>
+                        </span>
+                      ))}
                     </div>
                   </div>
                 )}
-              </div>
 
-              {/* Detailed Description */}
-              <div className="space-y-1">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide block">{isAr ? 'حول هذا العرض' : 'stay description'}</span>
-                <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
-                  {isAr ? (selectedTrip.description || selectedTrip.subtitle) : (selectedTrip.description_en || selectedTrip.subtitle_en)}
-                </p>
-              </div>
-
-              {/* Services details lists */}
-              {selectedTrip.services && selectedTrip.services.length > 0 && (
-                <div className="space-y-2">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide block">{lex.additionalDetails}</span>
-                  <div className="flex flex-wrap gap-1">
-                    {(isAr ? selectedTrip.services : selectedTrip.services_en).map((svc, i) => (
-                      <span 
-                        key={i} 
-                        className="inline-flex items-center gap-1 py-1 px-2.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200/50"
-                      >
-                        <CheckCircle2 className="w-3 h-3 text-teal-600 shrink-0" />
-                        <span>{svc}</span>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Company Ownership Label */}
-              {selectedTrip.companyName && (
-                <div className="p-3 bg-slate-100 rounded-xl text-xs flex items-center justify-between text-slate-500 font-medium">
-                  <span>{isAr ? 'الجهة المالكة والمنظمة:' : 'Owner / Concierge operator:'}</span>
-                  <strong className="text-slate-800">{isAr ? selectedTrip.companyName : selectedTrip.companyName_en}</strong>
-                </div>
-              )}
-
-              {/* Bottom Interactive Trigger maps / book */}
-              <div className="pt-3 border-t border-slate-100 space-y-3">
-                
-                {/* Embedded Interactive OSM Container with directions fallback */}
+                {/* Interactive Map directions integrations */}
                 {(selectedTrip.hotelLocation || selectedTrip.restaurantLocation) && (
-                  <MapContainer 
-                    locationQuery={selectedTrip.hotelLocation || selectedTrip.restaurantLocation || ''} 
-                    locationName={isAr ? selectedTrip.title : selectedTrip.title_en}
-                    category={selectedTrip.category === 'hotels' ? 'hotels' : 'restaurants'}
-                  />
+                  <div className="space-y-3.5 border-t border-slate-100 pt-5">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest block">{isAr ? 'الموقع الجغرافي والإحداثيات' : 'Physical Location coordinates'}</span>
+                    <MapContainer 
+                      locationQuery={selectedTrip.hotelLocation || selectedTrip.restaurantLocation || ''} 
+                      locationName={isAr ? selectedTrip.title : selectedTrip.title_en}
+                      category={selectedTrip.category === 'hotels' ? 'hotels' : 'restaurants'}
+                    />
+                  </div>
                 )}
 
-                {/* Confirm reservation button */}
-                <button 
-                  onClick={() => { handleTriggerBooking(selectedTrip); setSelectedTrip(null); }}
-                  disabled={selectedTrip.isBooked}
-                  className={`w-full py-4 px-6 text-white font-bold rounded-2xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer
-                    ${selectedTrip.isBooked 
-                      ? 'bg-slate-300 pointer-events-none select-none shadow-none' 
-                      : 'bg-gradient-to-r from-teal-600 to-indigo-600 hover:from-teal-700 hover:to-indigo-700 shadow-teal-600/10'
-                    }
-                  `}
-                >
-                  {selectedTrip.isBooked ? (
-                    <span>{lex.bookedBadge}</span>
-                  ) : (
-                    <>
-                      <Calendar className="w-4 h-4" />
-                      <span>{currentUser ? lex.bookNow : `${lex.login} / ${lex.bookNow}`}</span>
-                    </>
-                  )}
-                </button>
+                {/* CUSTOMER REVIEWS & COMMENT SECTION */}
+                <div className="space-y-6 border-t border-slate-100 pt-6" id="reviews-section">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2">
+                      <span>💬</span>
+                      <span>{isAr ? 'آراء وتقييمات العملاء والنزلاء' : 'Customer Reviews & Comments'}</span>
+                      <span className="text-xs font-black bg-teal-50 text-teal-700 px-2 py-0.5 rounded-full border border-teal-100">
+                        {reviews.filter(r => r.tripId === selectedTrip.id).length}
+                      </span>
+                    </h3>
+                  </div>
+
+                  {/* Verified Customer Feedback Stack */}
+                  <div className="space-y-3">
+                    {reviews.filter(r => r.tripId === selectedTrip.id).length === 0 ? (
+                      <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-100 text-slate-400 text-xs font-semibold">
+                        {isAr ? 'لا توجد تعليقات أو مراجعات مكتوبة بعد لهذا العرض. شاركنا تجربتك لتكون أول المقيّمين!' : 'No written reviews verified for this offer yet. Be the first to publish a review!'}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 gap-3.5 select-text">
+                        {reviews.filter(r => r.tripId === selectedTrip.id).map((rev) => (
+                          <div key={rev.id} className="p-4 bg-slate-50/50 border border-slate-100 rounded-2xl hover:bg-slate-50 transition-colors space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-black text-slate-850">{rev.userName}</span>
+                              <span className="text-[10px] text-slate-400 font-bold">{rev.date}</span>
+                            </div>
+                            <div className="flex items-center gap-1 leading-none text-amber-500 font-bold select-none">
+                              {Array.from({ length: 5 }).map((_, sIdx) => (
+                                <Star 
+                                  key={sIdx} 
+                                  className={`w-3.5 h-3.5 ${sIdx < rev.rating ? 'fill-current' : 'text-slate-200'}`} 
+                                />
+                              ))}
+                              <span className="text-xs font-black ml-1 text-slate-600">({rev.rating}/5)</span>
+                            </div>
+                            <p className="text-slate-600 text-xs leading-relaxed font-semibold">
+                              {rev.comment}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Publish a comment and star system */}
+                  <div className="p-5 bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-3xl border border-slate-200/40 space-y-4">
+                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
+                      <span>✍️</span>
+                      <span>{isAr ? 'شاركنا تقييمك ورأيك المكتوب بالمنشأة' : 'Write a Review and rate your stay'}</span>
+                    </h4>
+
+                    <div className="space-y-4">
+                      {/* Interactive Star rating selector */}
+                      <div>
+                        <span className="block text-[10px] font-black uppercase text-slate-400 mb-1.5">
+                          {isAr ? 'تقييم المنشأة بالنجوم:' : 'Star Rating Selection:'}
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {Array.from({ length: 5 }).map((_, i) => {
+                            const starValue = i + 1;
+                            return (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={() => setNewReviewRating(starValue)}
+                                className="p-1 hover:scale-110 transition-transform cursor-pointer text-amber-500"
+                              >
+                                <Star className={`w-6 h-6 ${newReviewRating >= starValue ? 'fill-current' : 'text-slate-300'}`} />
+                              </button>
+                            );
+                          })}
+                          <span className="text-xs font-black text-slate-600 ml-2">
+                            {newReviewRating === 5 ? (isAr ? 'ممتاز جداً 🌟' : 'Excellent!') :
+                             newReviewRating === 4 ? (isAr ? 'جيد جداً 👍' : 'Very Good') :
+                             newReviewRating === 3 ? (isAr ? 'جيد مقبول' : 'Good') :
+                             newReviewRating === 2 ? (isAr ? 'ضعيف' : 'Fair') :
+                             (isAr ? 'سيء جداً' : 'Poor')}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Guest customized name input */}
+                      <div>
+                        <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">{isAr ? 'اسمك الكريم (اختياري - يترك فارغاً للتلقائي):' : 'Your Nickname / Name (Optional):'}</label>
+                        <input 
+                          type="text"
+                          placeholder={currentUser ? currentUser.name : (isAr ? 'مثال: أحمد الدمشقي' : 'e.g. Samer Al-Saeed')}
+                          value={newReviewName}
+                          onChange={(e) => setNewReviewName(e.target.value)}
+                          className="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-xs font-bold outline-none focus:border-teal-500"
+                        />
+                      </div>
+
+                      {/* Review text box */}
+                      <div>
+                        <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">{isAr ? 'اكتب رأيك وتجربتك هنا كتابة بالتفصيل *' : 'Write your comment experience *'}</label>
+                        <textarea 
+                          rows={3}
+                          required
+                          value={newReviewComment}
+                          onChange={(e) => setNewReviewComment(e.target.value)}
+                          placeholder={isAr ? 'اكتب مراجعتك بكل شفافية للنزلاء الآخرين...' : 'Express your honest hotel details...'}
+                          className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-bold outline-none focus:border-teal-500 resize-none leading-relaxed"
+                        />
+                      </div>
+
+                      {/* Submit comment action button */}
+                      <button
+                        type="button"
+                        onClick={() => handleAddReview(selectedTrip.id)}
+                        className="w-full py-3 px-5 text-xs text-white font-bold bg-teal-600 hover:bg-teal-700 transition-colors rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        <span>🚀</span>
+                        <span>{isAr ? 'نشر التعليق والتقييم بالنجوم والكتابة' : 'Publish Review'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
               </div>
 
-            </div>
+              {/* Sticky Right/Left Sidebar panel column for booking information */}
+              <div className="space-y-4">
+                <div className="lg:sticky lg:top-24 bg-slate-50 rounded-3xl p-5 border border-slate-200/60 shadow-xs space-y-4">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wide block">{lex.price}</span>
+                    <div className="flex items-baseline mt-1 leading-none">
+                      {selectedTrip.category === 'restaurants' ? (
+                        <strong className="text-sm font-extrabold text-slate-500 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg block w-full text-center">
+                          {isAr ? 'بدون تسعير مسبق' : 'No pre-pricing required'}
+                        </strong>
+                      ) : (
+                        <>
+                          <strong className="text-3xl font-black text-teal-600">${selectedTrip.price}</strong>
+                          <span className="text-xs text-slate-500 font-bold ml-1">
+                            /{selectedTrip.category === 'hotels' ? (isAr ? 'ليلة' : 'night') : selectedTrip.category === 'apartments' ? (isAr ? 'ليلة' : 'night') : (isAr ? 'يوم' : 'day')}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
 
-          </motion.div>
+                  {selectedTrip.adminRating && (
+                    <div className="flex items-center gap-2 border-t border-slate-150/45 pt-3 select-none">
+                      <span className="text-[10px] text-zinc-400 font-bold uppercase">{isAr ? 'التقييم الأصلي:' : 'Default Score:'}</span>
+                      <div className="flex items-center gap-1 font-black text-xs text-amber-500">
+                        <span>{selectedTrip.adminRating}</span>
+                        <Star className="w-3.5 h-3.5 text-amber-500 fill-current" />
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedTrip.companyName && (
+                    <div className="p-3 bg-white border border-slate-100 rounded-xl text-xs flex flex-col gap-1">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase">{isAr ? 'الجهة المالكة والمنظمة:' : 'Owner / Concierge:'}</span>
+                      <strong className="text-slate-800">{isAr ? selectedTrip.companyName : selectedTrip.companyName_en}</strong>
+                    </div>
+                  )}
+
+                  <div className="pt-2">
+                    <button 
+                      onClick={() => { handleTriggerBooking(selectedTrip); setSelectedTrip(null); }}
+                      disabled={selectedTrip.isBooked}
+                      className={`w-full py-4 px-6 text-white font-bold rounded-2xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer
+                        ${selectedTrip.isBooked 
+                          ? 'bg-slate-300 pointer-events-none select-none shadow-none' 
+                          : 'bg-gradient-to-r from-teal-600 to-indigo-600 hover:from-teal-700 hover:to-indigo-700 shadow-teal-600/15'
+                        }
+                      `}
+                    >
+                      {selectedTrip.isBooked ? (
+                        <span>{lex.bookedBadge}</span>
+                      ) : (
+                        <>
+                          <Calendar className="w-4 h-4" />
+                          <span>{currentUser ? lex.bookNow : `${lex.login} / ${lex.bookNow}`}</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </motion.div>
-      )}
+        )}
       </AnimatePresence>
 
       {/* COMPREHENSIVE CATEGORY SPECIFIC RESERVATION FORMS OVERLAYS */}
