@@ -51,7 +51,7 @@ export interface Trip {
   carCostWithoutDriver?: string;
   services: string[];
   services_en: string[];
-  bedType?: 'single_bed' | 'two_beds';
+  bedType?: string;
 }
 
 export interface Booking {

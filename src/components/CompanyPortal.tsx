@@ -7,7 +7,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   Building2, Key, Image as ImageIcon, MapPin, Star, Bed, LogOut, Bell, 
   ClipboardList, Package, Plus, Trash2, CheckCircle, ChevronRight, X, 
-  User, Phone, Check, ArrowLeft, Upload, FileText, CheckCircle2, ShieldAlert
+  User, Phone, Check, ArrowLeft, Upload, FileText, CheckCircle2, ShieldAlert,
+  Hotel, Car, Utensils, Home, Clock, Sparkles
 } from 'lucide-react';
 
 import { Language, Category, Trip, Booking, Notification } from '../types';
@@ -77,7 +78,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
   const [oPrice, setOPrice] = useState('');
   const [oCompanyPrice, setOCompanyPrice] = useState('');
   const [oRating, setORating] = useState('4.5');
-  const [oBedType, setOBedType] = useState<'single_bed' | 'two_beds'>('two_beds');
+  const [oBedType, setOBedType] = useState('two_beds');
   const [oMapCoordinates, setOMapCoordinates] = useState('');
   
   // Car custom price tiers
@@ -111,7 +112,8 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
         const defaultCompanies: CompanyAccount[] = [
           { id: '1', name: 'فندق الشام الكبير', email: 'cham@travelo.sy', phone: '+963 11 223 344', category: 'hotels', password: '123', active: true },
           { id: '2', name: 'سيريا كارس لتأجير السيارات', email: 'cars@travelo.sy', phone: '+963 933 111 222', category: 'cars', password: '123', active: true },
-          { id: '3', name: 'مطعم بوابة دمشق القديمة', email: 'rest@travelo.sy', phone: '+963 11 544 555', category: 'restaurants', password: '123', active: true }
+          { id: '3', name: 'مطعم بوابة دمشق القديمة', email: 'rest@travelo.sy', phone: '+963 11 544 555', category: 'restaurants', password: '123', active: true },
+          { id: '4', name: 'الشهباء لتأجير الشقق المفروشة', email: 'shaba@travelo.sy', phone: '+963 21 444 555', category: 'apartments', password: '123', active: true }
         ];
         localStorage.setItem('travelo_company_accounts', JSON.stringify(defaultCompanies));
         setCompanyAccounts(defaultCompanies);
@@ -288,18 +290,19 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
     const isHotel = currentCompany.category === 'hotels';
     const isCar = currentCompany.category === 'cars';
     const isRest = currentCompany.category === 'restaurants';
+    const isApartment = currentCompany.category === 'apartments';
 
     const newTrip: Trip = {
       id: 'trip-' + Math.random().toString(36).slice(2, 9),
-      category: currentCompany.category,
+      category: currentCompany.category as Category,
       title: oTitleAr.trim(),
       title_en: oTitleEn.trim() || oTitleAr.trim(),
       subtitle: oDescAr.trim() || (isAr ? 'عرض مميز للنزلاء' : 'Curated premium service'),
       subtitle_en: oDescEn.trim() || oTitleEn.trim() || 'Premium partner catalog listing',
       image: newOfferImages[0],
       images: newOfferImages,
-      price: isHotel ? '0' : (oPrice || '0'), 
-      companyPrice: isHotel ? '0' : (oCompanyPrice || '0'),
+      price: oPrice || '0', 
+      companyPrice: oCompanyPrice || '0',
       locationName: oLocationAr.trim() || (isAr ? 'دمشق، سوريا' : 'Damascus, Syria'),
       locationName_en: oLocationEn.trim() || 'Damascus, Syria',
       adminRating: oRating || '4.5',
@@ -309,10 +312,10 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
       companyName_en: currentCompany.name,
       services: tagsAr,
       services_en: tagsEn,
-      pendingApproval: false, // Hotels do not require pricing approval and go live immediately
-      hotelLocation: isHotel ? oMapCoordinates.trim() || undefined : undefined,
+      pendingApproval: false, // Go live immediately without pending pricing approval
+      hotelLocation: (isHotel || isApartment) ? oMapCoordinates.trim() || undefined : undefined,
       restaurantLocation: isRest ? oMapCoordinates.trim() || undefined : undefined,
-      bedType: isHotel ? oBedType : undefined,
+      bedType: (isHotel || isApartment) ? oBedType : undefined,
       carPriceWithDriver: isCar ? carClientWithDriver || undefined : undefined,
       carCostWithDriver: isCar ? carCostWithDriver || undefined : undefined,
       carPriceWithoutDriver: isCar ? carClientWithoutDriver || undefined : undefined,
@@ -342,17 +345,18 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
     setNewOfferImages([]);
     setTagsAr([]);
     setTagsEn([]);
+    setOBedType('two_beds');
 
     showToast(
       '🎉',
       'تم نشر العرض بنجاح!',
       'Offer Listed Successfully!',
       isAr 
-        ? (isHotel ? 'تم تفعيل فندقك ونشره مباشرة. يمكن للمستخدمين تقديم طلبات حجز فورية بدون تسعير مسبق.' : 'تم تفعيل العرض مباشرة ويمكن للمستخدمين حجزه.')
-        : (isHotel ? 'Your hotel listing is live. Clients can now make bookings without any pre-pricing.' : 'Listed offer is live and available for client bookings.'),
+        ? 'تم تفعيل العرض ونشره مباشرة في الدليل السياحي بنجاح، وأصبح متاحاً للعملاء بالأسعار المحددة.'
+        : 'Your listing is live in the travel directory and immediately bookable with the chosen rates.',
       isAr 
-        ? (isHotel ? 'Hotel live directly.' : 'Vessel published instantly')
-        : 'Publish code 200',
+        ? 'العرض مباشر الآن'
+        : 'Listing published',
       '#0d9488'
     );
 
@@ -517,19 +521,29 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
 
   // --- Dynamic Mappings ---
   const catLabels: Record<string, string> = {
-    hotels: isAr ? '🏩 فندق / شقق' : '🏩 Hotel / Suites',
+    hotels: isAr ? '🏩 فندق سياحي' : '🏩 Hotel Niche',
     cars: isAr ? '🚗 مكتب سيارات' : '🚗 Car Rental Desk',
-    restaurants: isAr ? '🍽️ مطعم سياحي' : '🍽️ Dining Resto'
+    restaurants: isAr ? '🍽️ مطعم سياحي' : '🍽️ Dining Resto',
+    apartments: isAr ? '🏢 شقق سكنية' : '🏢 Apartment Rental'
   };
 
-  const categoryBookingType = currentCompany?.category === 'hotels' ? 'hotel' : currentCompany?.category === 'cars' ? 'car' : 'restaurant';
+  const getNormalizedType = (t: string) => {
+    if (t === 'hotel' || t === 'hotels') return 'hotels';
+    if (t === 'car' || t === 'cars') return 'cars';
+    if (t === 'restaurant' || t === 'restaurants') return 'restaurants';
+    if (t === 'apartment' || t === 'apartments') return 'apartments';
+    return t;
+  };
+
+  const companyCategoryNormalized = getNormalizedType(currentCompany?.category || '');
 
   const myListedOffers = trips.filter(t => t.companyId === currentCompany?.id);
   const myListedOfferTitles = myListedOffers.map(t => t.title);
 
   // Filter company bookings based exactly on company's listings, fallback to active category if no published listings
   const myRelevantBookings = bookings.filter(b => {
-    if (b.bookingType !== categoryBookingType) return false;
+    const bTypeNormalized = getNormalizedType(b.bookingType);
+    if (bTypeNormalized !== companyCategoryNormalized) return false;
     if (myListedOfferTitles.length > 0) {
       return myListedOfferTitles.includes(b.tripTitle);
     }
@@ -695,33 +709,46 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
 
               <div>
                 <label className="block text-slate-400 text-[11px] font-black uppercase tracking-wider mb-1">{isAr ? 'نوع المنشأة / فئة الشراكة' : 'Primary Partner Niche Category'}</label>
-                <div className="grid grid-cols-3 gap-2 mt-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
                   <button 
                     type="button"
                     onClick={() => setSignupCategory('hotels')}
-                    className={`py-2 px-1 rounded-xl text-[10px] font-black border transition-all cursor-pointer
-                      ${signupCategory === 'hotels' ? 'bg-teal-600/20 text-teal-400 border-teal-500' : 'bg-slate-900 text-slate-400 border-slate-800'}
+                    className={`py-2 px-1 rounded-xl text-[10px] font-black border transition-all cursor-pointer flex flex-col items-center justify-center gap-1
+                      ${signupCategory === 'hotels' ? 'bg-teal-600/20 text-teal-400 border-teal-500 shadow-lg shadow-teal-500/10' : 'bg-slate-900 text-slate-400 border-slate-800'}
                     `}
                   >
-                    🏨 {isAr ? 'فندق/شقة' : 'Hotel'}
+                    <Hotel className="w-4 h-4 text-teal-400" />
+                    <span>{isAr ? 'فندق سياحي' : 'Hotels'}</span>
                   </button>
                   <button 
                     type="button"
                     onClick={() => setSignupCategory('cars')}
-                    className={`py-2 px-1 rounded-xl text-[10px] font-black border transition-all cursor-pointer
-                      ${signupCategory === 'cars' ? 'bg-indigo-600/20 text-indigo-400 border-indigo-500' : 'bg-slate-900 text-slate-400 border-slate-800'}
+                    className={`py-2 px-1 rounded-xl text-[10px] font-black border transition-all cursor-pointer flex flex-col items-center justify-center gap-1
+                      ${signupCategory === 'cars' ? 'bg-indigo-600/20 text-indigo-400 border-indigo-500 shadow-lg shadow-indigo-500/10' : 'bg-slate-900 text-slate-400 border-slate-800'}
                     `}
                   >
-                    🚗 {isAr ? 'مكتب تأجير' : 'Car Agency'}
+                    <Car className="w-4 h-4 text-indigo-400" />
+                    <span>{isAr ? 'تأجير سيارات' : 'Car Agency'}</span>
                   </button>
                   <button 
                     type="button"
                     onClick={() => setSignupCategory('restaurants')}
-                    className={`py-2 px-1 rounded-xl text-[10px] font-black border transition-all cursor-pointer
-                      ${signupCategory === 'restaurants' ? 'bg-rose-600/20 text-rose-400 border-rose-500' : 'bg-slate-900 text-slate-400 border-slate-800'}
+                    className={`py-2 px-1 rounded-xl text-[10px] font-black border transition-all cursor-pointer flex flex-col items-center justify-center gap-1
+                      ${signupCategory === 'restaurants' ? 'bg-rose-600/20 text-rose-400 border-rose-500 shadow-lg shadow-rose-500/10' : 'bg-slate-900 text-slate-400 border-slate-800'}
                     `}
                   >
-                    🍽️ {isAr ? 'مطعم مميز' : 'Restaurant'}
+                    <Utensils className="w-4 h-4 text-rose-400" />
+                    <span>{isAr ? 'مطعم مميز' : 'Restaurant'}</span>
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => setSignupCategory('apartments')}
+                    className={`py-2 px-1 rounded-xl text-[10px] font-black border transition-all cursor-pointer flex flex-col items-center justify-center gap-1
+                      ${signupCategory === 'apartments' ? 'bg-purple-600/20 text-purple-400 border-purple-500 shadow-lg shadow-purple-500/10' : 'bg-slate-900 text-slate-400 border-slate-800'}
+                    `}
+                  >
+                    <Home className="w-4 h-4 text-purple-400" />
+                    <span>{isAr ? 'شقق سكنية' : 'Apartments'}</span>
                   </button>
                 </div>
               </div>
@@ -755,6 +782,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
   const isHotel = currentCompany.category === 'hotels';
   const isCar = currentCompany.category === 'cars';
   const isRest = currentCompany.category === 'restaurants';
+  const isApartment = currentCompany.category === 'apartments';
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col text-slate-800 antialiased font-sans" dir={isAr ? 'rtl' : 'ltr'}>
@@ -843,21 +871,15 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-bold outline-none focus:border-teal-500"
                     />
                   </div>
-                  {!isHotel ? (
-                    <div>
-                      <label className="block text-[10px] text-slate-500 font-bold mb-1">{isAr ? 'سعر البيع للعميل ($)' : 'Client Price ($)'}</label>
-                      <input 
-                        type="number"
-                        value={editingTrip.price}
-                        onChange={(e) => setEditingTrip({ ...editingTrip, price: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-bold outline-none focus:border-teal-500"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex items-center text-[10px] text-amber-600 bg-amber-50 p-2 rounded-xl mt-3 font-semibold border border-amber-100">
-                      💡 {isAr ? 'أسعار الفندق يحددها المشرف فور قبول الغرفة.' : 'Hotel client pricing is set by Admin.'}
-                    </div>
-                  )}
+                  <div>
+                    <label className="block text-[10px] text-slate-500 font-bold mb-1">{isAr ? 'سعر البيع للعميل ($)' : 'Client Price ($)'}</label>
+                    <input 
+                      type="number"
+                      value={editingTrip.price}
+                      onChange={(e) => setEditingTrip({ ...editingTrip, price: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-bold outline-none focus:border-teal-500"
+                    />
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-3 bg-slate-50 p-3 rounded-2xl border border-slate-200/50">
@@ -904,6 +926,40 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-250/40">
+                <div>
+                  <label className="block text-[10px] text-slate-500 font-bold mb-1">
+                    ⭐️ {isAr ? 'التقييم (أرقام أو كتابة)' : 'Rating Value (e.g. 4.8)'}
+                  </label>
+                  <input 
+                    type="text"
+                    required
+                    value={editingTrip.adminRating || ''}
+                    onChange={(e) => setEditingTrip({ ...editingTrip, adminRating: e.target.value })}
+                    placeholder="4.5"
+                    className="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-xs font-bold outline-none focus:border-teal-500"
+                  />
+                </div>
+
+                {(editingTrip.category === 'hotels' || editingTrip.category === 'apartments') && (
+                  <div>
+                    <label className="block text-[10px] text-slate-500 font-bold mb-1">
+                      {editingTrip.category === 'apartments' 
+                        ? (isAr ? '🚪 عدد الغرف وتقسيم الشقة' : '🚪 Apartment Division') 
+                        : (isAr ? '🛏️ مواصفات ونوع الأسرة' : '🛏️ Rooms bed setup')}
+                    </label>
+                    <input 
+                      type="text"
+                      required
+                      value={editingTrip.bedType || ''}
+                      onChange={(e) => setEditingTrip({ ...editingTrip, bedType: e.target.value })}
+                      placeholder={editingTrip.category === 'apartments' ? (isAr ? 'مثال: شقة غرفتين وصالون' : 'e.g. 2 Rooms & Salon') : (isAr ? 'مثال: سرير مزدوج كبير' : 'e.g. single_bed / two_beds')}
+                      className="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-xs font-bold outline-none focus:border-teal-500"
+                    />
+                  </div>
+                )}
+              </div>
+
               <div className="flex gap-2.5 pt-3 border-t border-slate-100">
                 <button 
                   type="submit"
@@ -928,14 +984,6 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
       <header className="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button 
-              onClick={onBack}
-              className="p-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs rounded-xl flex items-center gap-1 transition-colors border border-slate-700/50 cursor-pointer"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">{isAr ? 'الموقع السياحي' : 'Client Site'}</span>
-            </button>
-            <div className="h-px w-4 bg-slate-700 hidden sm:block"></div>
             <div>
               <div className="flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-teal-400" />
@@ -1150,11 +1198,11 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
                             {/* Cost vs client price split */}
                             <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-150">
                               <div className="bg-white border border-slate-200 rounded-lg p-2 text-center">
-                                <span className="block text-[8px] text-slate-400 font-bold uppercase">{isAr ? 'سعر التكلفة' : 'Cost Cost'}</span>
+                                <span className="block text-[8px] text-slate-400 font-bold uppercase">{isAr ? 'سعر الشركة' : 'Company Price'}</span>
                                 <span className="text-xs font-black text-rose-600">${trip.companyPrice}</span>
                               </div>
                               <div className="bg-white border border-slate-200 rounded-lg p-2 text-center">
-                                <span className="block text-[8px] text-slate-400 font-bold uppercase">{isAr ? 'سعر العميل' : 'Client Rate'}</span>
+                                <span className="block text-[8px] text-slate-400 font-bold uppercase">{isAr ? 'سعر العميل' : 'Customer Price'}</span>
                                 <span className="text-xs font-black text-emerald-600">
                                   {clientPrice > 0 ? `$${clientPrice}` : (isAr ? 'قيد التقييم' : 'Assessing')}
                                 </span>
@@ -1167,13 +1215,13 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
                               onClick={() => setEditingTrip(trip)}
                               className="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-black rounded-lg transition-colors cursor-pointer text-center"
                             >
-                              ✏️ {isAr ? 'تعديل' : 'Modify'}
+                              {isAr ? 'تعديل التفاصيل' : 'Modify'}
                             </button>
                             <button 
                               onClick={() => handleDeleteOffer(trip.id, trip.title)}
                               className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-black rounded-lg transition-colors cursor-pointer text-center"
                             >
-                              🗑️ {isAr ? 'حذف' : 'Purge'}
+                              {isAr ? 'حذف العرض' : 'Delete'}
                             </button>
                           </div>
                         </div>
@@ -1272,36 +1320,12 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
               </div>
 
               {/* DYNAMIC FORM SECTION: HOTELS VS CARS VS RESTS */}
-              {isHotel ? (
+              {!isCar ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/50">
                   <div>
-                    <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">{isAr ? 'نسبة التقييم الافتراضية (0 - 5)' : 'Listing Default Stars'}</label>
-                    <select 
-                      value={oRating} 
-                      onChange={(e) => setORating(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-bold outline-none"
-                    >
-                      <option value="5.0">⭐⭐⭐⭐⭐ (5.0)</option>
-                      <option value="4.5">⭐⭐⭐⭐⭐ (4.5)</option>
-                      <option value="4.0">⭐⭐⭐⭐ (4.0)</option>
-                      <option value="3.5">⭐⭐⭐ (3.5)</option>
-                    </select>
-                  </div>
-                  <div className="flex items-center text-xs text-emerald-700 font-bold px-4 py-3 bg-emerald-50 rounded-xl border border-emerald-100/40">
-                    <div>
-                      <span>🟢 {isAr ? 'حجز الفنادق بدون تسعير مسبق' : 'Hotel Booking without Pre-Pricing'}</span>
-                      <p className="text-[10px] text-emerald-600 font-medium mt-1 leading-normal">
-                        {isAr 
-                          ? 'تم تفعيل ميزة طلب الحجز المباشر للفنادق. هذا العرض لن يتضمن أي أسعار، وسيتمكن العملاء من حجزه وحفظ بياناتهم للتأكيد لاحقاً.'
-                          : 'Direct hotel reservation has been activated. No prices will be shown or required for this listing.'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ) : !isCar ? (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/50">
-                  <div>
-                    <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">{isAr ? 'سعر التكلفة للشركة شهرياً/يومياً ($) *' : 'Cost cost / Day ($) *'}</label>
+                    <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">
+                      {isAr ? 'سعر شريك ترافيلو (سعر الشركة) ($) *' : 'Company Partner Cost Rate ($) *'}
+                    </label>
                     <input 
                       type="number"
                       required
@@ -1312,36 +1336,18 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
                     />
                   </div>
 
-                  {!isHotel ? (
-                    <div>
-                      <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">{isAr ? 'سعر بيع العميل النهائي ($) *' : 'Client Selling Rate ($) *'}</label>
-                      <input 
-                        type="number"
-                        required
-                        value={oPrice}
-                        onChange={(e) => setOPrice(e.target.value)}
-                        placeholder="95"
-                        className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-bold outline-none"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex items-center text-[10px] text-amber-600 font-bold px-3 py-2 bg-amber-50 rounded-xl border border-amber-100">
-                      💡 {isAr ? 'فواتير الفنادق: يحدد المشرف نسبة بيع العميل.' : 'Hotels default pricing approved by admin panel.'}
-                    </div>
-                  )}
-
                   <div>
-                    <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">{isAr ? 'نسبة التقييم الافتراضية (0 - 5)' : 'Listing Default Stars'}</label>
-                    <select 
-                      value={oRating} 
-                      onChange={(e) => setORating(e.target.value)}
+                    <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">
+                      {isAr ? 'سعر بيع العميل النهائي (سعر العميل) ($) *' : 'Client Selling Rate ($) *'}
+                    </label>
+                    <input 
+                      type="number"
+                      required
+                      value={oPrice}
+                      onChange={(e) => setOPrice(e.target.value)}
+                      placeholder="95"
                       className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-bold outline-none"
-                    >
-                      <option value="5.0">⭐⭐⭐⭐⭐ (5.0)</option>
-                      <option value="4.5">⭐⭐⭐⭐⭐ (4.5)</option>
-                      <option value="4.0">⭐⭐⭐⭐ (4.0)</option>
-                      <option value="3.5">⭐⭐⭐ (3.5)</option>
-                    </select>
+                    />
                   </div>
                 </div>
               ) : (
@@ -1369,9 +1375,23 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
                 </div>
               )}
 
-              {/* COORD / BED TYPE / MAP FIELD OPTIONS */}
-              {(isHotel || isRest) && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+              {/* COORD / BED TYPE / RATING / MAP FIELD OPTIONS */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                <div>
+                  <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">
+                    ⭐️ {isAr ? 'نسبة مئوية أو قيمة التقييم (مثال: 4.8)' : 'Rating Value (e.g. 4.8) *'}
+                  </label>
+                  <input 
+                    type="text"
+                    required
+                    value={oRating}
+                    onChange={(e) => setORating(e.target.value)}
+                    placeholder="4.5"
+                    className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-bold outline-none"
+                  />
+                </div>
+
+                {(isHotel || isRest || isApartment) && (
                   <div>
                     <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">{isAr ? '📍 رابط موقع الخريطة / الإحداثيات' : '📍 Maps Coordinates Link / LongLat'}</label>
                     <input 
@@ -1382,34 +1402,52 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
                       className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-bold outline-none"
                     />
                   </div>
+                )}
 
-                  {isHotel && (
-                    <div>
-                      <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">{isAr ? '🛏️ مواصفات ونوع الأسرة الافتراضي بالتبويب' : '🛏️ Room Beds default classification'}</label>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button 
-                          type="button"
-                          onClick={() => setOBedType('single_bed')}
-                          className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all cursor-pointer bg-white
-                            ${oBedType === 'single_bed' ? 'border-teal-500 text-teal-600' : 'border-slate-200 text-slate-500'}
-                          `}
-                        >
-                          🛌 {isAr ? 'سرير فردي' : 'Single Bed'}
-                        </button>
-                        <button 
-                          type="button"
-                          onClick={() => setOBedType('two_beds')}
-                          className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all cursor-pointer bg-white
-                            ${oBedType === 'two_beds' ? 'border-teal-500 text-teal-600' : 'border-slate-200 text-slate-500'}
-                          `}
-                        >
-                          🛌🛌 {isAr ? 'سريرين مزدوجين' : 'Double Beds'}
-                        </button>
-                      </div>
+                {isApartment && (
+                  <div>
+                    <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">
+                      🏢 {isAr ? 'عدد الغرف وتقسيم الشقة بالتفصيل *' : 'Rooms & Apartment Subdivisions *'}
+                    </label>
+                    <input 
+                      type="text"
+                      required
+                      value={oBedType === 'single_bed' || oBedType === 'two_beds' ? '' : oBedType}
+                      onChange={(e) => setOBedType(e.target.value)}
+                      placeholder={isAr ? 'مثال: شقة 3 غرف وصالون ومطبخ' : 'e.g. 3 Rooms & Salon'}
+                      className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-bold outline-none"
+                    />
+                  </div>
+                )}
+
+                {isHotel && (
+                  <div>
+                    <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">
+                      🛏️ {isAr ? 'مواصفات ونوع الأسرة الافتراضي بالتبويب' : '🛏️ Room Beds default setup'}
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button 
+                        type="button"
+                        onClick={() => setOBedType('single_bed')}
+                        className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all cursor-pointer bg-white
+                          ${oBedType === 'single_bed' ? 'border-teal-500 text-teal-600 bg-teal-50/40' : 'border-slate-200 text-slate-500'}
+                        `}
+                      >
+                        {isAr ? '🛌 سرير فردي' : 'Single Bed'}
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => setOBedType('two_beds')}
+                        className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all cursor-pointer bg-white
+                          ${oBedType === 'two_beds' ? 'border-teal-500 text-teal-600 bg-teal-50/40' : 'border-slate-200 text-slate-500'}
+                        `}
+                      >
+                        {isAr ? '🛌🛌 سريرين مزدوجين' : 'Double Beds'}
+                      </button>
                     </div>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
 
               {/* SERVICES CHIPS INPUT MODULE */}
               <div className="space-y-2">
@@ -1521,27 +1559,30 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
                   </button>
                   <button 
                     onClick={() => setBookingFilter('pending')}
-                    className={`py-1.5 px-3 rounded-lg font-bold cursor-pointer transition-all
+                    className={`py-1.5 px-3 rounded-lg font-bold cursor-pointer transition-all flex items-center gap-1
                       ${bookingFilter === 'pending' ? 'bg-white text-slate-900 shadow-xs font-black' : 'text-slate-500'}
                     `}
                   >
-                    ⏳ {isAr ? 'قيد الانتظار' : 'Pending'}
+                    <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                    <span>{isAr ? 'قيد الانتظار' : 'Pending'}</span>
                   </button>
                   <button 
                     onClick={() => setBookingFilter('accepted')}
-                    className={`py-1.5 px-3 rounded-lg font-bold cursor-pointer transition-all
-                      ${bookingFilter === 'accepted' ? 'bg-white text-slate-900 shadow-xs font-black md:font-extrabold' : 'text-slate-500'}
+                    className={`py-1.5 px-3 rounded-lg font-bold cursor-pointer transition-all flex items-center gap-1
+                      ${bookingFilter === 'accepted' ? 'bg-white text-slate-950 shadow-xs font-black' : 'text-slate-500'}
                     `}
                   >
-                    ✅ {isAr ? 'مقبولة' : 'Accepted'}
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <span>{isAr ? 'مقبولة' : 'Accepted'}</span>
                   </button>
                   <button 
                     onClick={() => setBookingFilter('rejected')}
-                    className={`py-1.5 px-3 rounded-lg font-bold cursor-pointer transition-all
-                      ${bookingFilter === 'rejected' ? 'bg-white text-slate-900 shadow-xs font-black md:font-extrabold' : 'text-slate-500'}
+                    className={`py-1.5 px-3 rounded-lg font-bold cursor-pointer transition-all flex items-center gap-1
+                      ${bookingFilter === 'rejected' ? 'bg-white text-slate-900 shadow-xs font-black' : 'text-slate-500'}
                     `}
                   >
-                    ❌ {isAr ? 'مرفوضة' : 'Declined'}
+                    <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                    <span>{isAr ? 'مرفوضة' : 'Declined'}</span>
                   </button>
                 </div>
               </div>
@@ -1609,7 +1650,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
 
                           {/* Dynamic specifications matching stay hotel, self drive luxury car, or traditional fine dining restaurant */}
                           <div className="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-150">
-                            {book.bookingType === 'hotel' && (
+                            {(book.bookingType as string) === 'hotel' && (
                               <>
                                 <div>
                                   <span className="block text-[8px] text-slate-400 font-semibold">{isAr ? 'النزلاء' : 'Accompany'}</span>
@@ -1626,7 +1667,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
                               </>
                             )}
 
-                            {book.bookingType === 'car' && (
+                            {(book.bookingType as string) === 'car' && (
                               <>
                                 <div>
                                   <span className="block text-[8px] text-slate-400 font-semibold">{isAr ? 'المدة' : 'Period'}</span>
@@ -1639,7 +1680,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
                               </>
                             )}
 
-                            {book.bookingType === 'restaurant' && (
+                            {(book.bookingType as string) === 'restaurant' && (
                               <div className="col-span-3">
                                 <span className="block text-[8px] text-slate-400 font-semibold">{isAr ? 'طلب عشاء طاولة' : 'Dining Table details'}</span>
                                 <span className="text-xs font-black text-slate-800">{d.guestCount || '2'} {isAr ? 'أشخاص على طاولة ممتازة' : 'pax VIP dinner table'}</span>
