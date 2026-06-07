@@ -1092,7 +1092,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
             `}
           >
             <Package className="w-4 h-4 text-teal-600" />
-            <span>🔑 {isAr ? 'عروضي الحالية' : 'My Directory List'}</span>
+            <span> {isAr ? 'عروضي الحالية' : 'My Directory List'}</span>
             <span className="bg-slate-100 px-2 py-0.5 rounded-full text-[10px]">{statOffersCount}</span>
           </button>
 
@@ -1103,7 +1103,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
             `}
           >
             <Plus className="w-4 h-4 text-indigo-600" />
-            <span>➕ {isAr ? 'إضافة عرض جديد' : 'Publish New Asset'}</span>
+            <span> {isAr ? 'إضافة عرض جديد' : 'Publish New Asset'}</span>
           </button>
 
           <button 
@@ -1113,7 +1113,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
             `}
           >
             <ClipboardList className="w-4 h-4 text-emerald-600" />
-            <span>📋 {isAr ? 'طلبات حجز العملاء' : 'Live Client Requests'}</span>
+            <span> {isAr ? 'طلبات حجز العملاء' : 'Live Client Requests'}</span>
             {myRelevantBookings.filter(b => b.status === 'pending').length > 0 && (
               <span className="bg-rose-500 text-white w-5 h-5 rounded-full text-[9px] font-bold flex items-center justify-center animate-bounce">
                 {myRelevantBookings.filter(b => b.status === 'pending').length}
