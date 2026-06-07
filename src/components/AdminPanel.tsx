@@ -150,7 +150,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       if (stored) {
         setCompanies(JSON.parse(stored));
       } else {
-        const defaultCompanies: CompanyAccount[] = [];
+        const defaultCompanies: CompanyAccount[] = [
+          { id: '1', name: 'فندق الشام الكبير', email: 'cham@travelo.sy', phone: '+963 11 223 344', category: 'hotels', active: true },
+          { id: '2', name: 'سيريا كارس لتأجير السيارات', email: 'cars@travelo.sy', phone: '+963 933 111 222', category: 'cars', active: true },
+          { id: '3', name: 'مطعم بوابة دمشق القديمة', email: 'rest@travelo.sy', phone: '+963 11 544 555', category: 'restaurants', active: true },
+          { id: '4', name: 'الشهباء لتأجير الشقق المفروشة', email: 'shaba@travelo.sy', phone: '+963 21 444 555', category: 'apartments', active: true }
+        ];
         localStorage.setItem('travelo_company_accounts', JSON.stringify(defaultCompanies));
         setCompanies(defaultCompanies);
       }
@@ -438,16 +443,28 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
   // Delete Company
   const handleDeleteCompany = (companyId: string) => {
-    if (!window.confirm(isAr ? 'هل أنت متأكد من مسح هذه الشركة وعروضها التابعة؟' : 'Are you sure you want to remove this company?')) return;
-    const updated = companies.filter(c => c.id !== companyId);
-    saveCompaniesToStorage(updated);
+    if (!window.confirm(isAr ? 'هل أنت متأكد من مسح هذه الشركة وعروضها التابعة؟' : 'Are you sure you want to remove this company and all its offers?')) return;
+    const updatedCompanies = companies.filter(c => c.id !== companyId);
+    saveCompaniesToStorage(updatedCompanies);
+
+    // Filter out all trips belonging to this company
+    const companyTrips = trips.filter(t => t.companyId === companyId);
+    const companyTripIds = companyTrips.map(t => t.id);
+    const updatedTrips = trips.filter(t => t.companyId !== companyId);
+    setTrips(updatedTrips);
+    localStorage.setItem('travelo_trips', JSON.stringify(updatedTrips));
+
+    // Also cancel and filter out all bookings associated with this company's offers
+    const updatedBookings = bookings.filter(b => !companyTripIds.includes(b.tripId));
+    setBookings(updatedBookings);
+    localStorage.setItem('travelo_bookings', JSON.stringify(updatedBookings));
 
     showToast(
       '🗑️',
-      'تم شطب معلومات الشركة',
-      'Company Deleted',
-      'تم إلغاء سجل الشركة وجميع بياناتها في النظام لوحة التحكم.',
-      'Company workspace deleted successfully from admin workspace.',
+      'تم شطب معلومات الشركة وعروضها وحجوزاتها',
+      'Company, Offers & Bookings Deleted',
+      'تم إلغاء سجل الشركة وجميع عروضها التابعة لها وحجوزاتها المرتبطة بها في النظام بنجاح.',
+      'Company workspace, affiliated offers, and related bookings deleted successfully.',
       '#e11d48'
     );
   };
