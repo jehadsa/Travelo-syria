@@ -573,13 +573,6 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
           
           {/* Header */}
           <div className="text-center mb-6">
-            <button 
-              onClick={onBack}
-              className="absolute top-6 left-6 text-slate-400 hover:text-white transition-all bg-slate-900 border border-slate-800 p-2 rounded-full cursor-pointer"
-              title={isAr ? 'الرجوع للموقع' : 'Back to Site'}
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </button>
             <div className="w-16 h-16 bg-teal-600 rounded-full flex items-center justify-center font-black text-white text-3xl mx-auto shadow-lg shadow-teal-500/20 mb-3">
               T
             </div>
@@ -761,17 +754,6 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
               </button>
             </form>
           )}
-
-          {/* Footer Back */}
-          <div className="text-center mt-6 pt-4 border-t border-slate-800/50">
-            <button 
-              onClick={onBack}
-              className="text-xs text-slate-400 hover:text-teal-400 font-bold flex items-center justify-center gap-1 mx-auto cursor-pointer"
-            >
-              <span>{isAr ? 'الرجوع ومتابعة تصفح ترافيلو' : 'Exit to Main Guest Catalog'}</span>
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
 
         </div>
       </div>
@@ -1650,7 +1632,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
 
                           {/* Dynamic specifications matching stay hotel, self drive luxury car, or traditional fine dining restaurant */}
                           <div className="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-150">
-                            {(book.bookingType as string) === 'hotel' && (
+                            {book.bookingType === 'hotels' && (
                               <>
                                 <div>
                                   <span className="block text-[8px] text-slate-400 font-semibold">{isAr ? 'النزلاء' : 'Accompany'}</span>
@@ -1667,7 +1649,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
                               </>
                             )}
 
-                            {(book.bookingType as string) === 'car' && (
+                            {book.bookingType === 'cars' && (
                               <>
                                 <div>
                                   <span className="block text-[8px] text-slate-400 font-semibold">{isAr ? 'المدة' : 'Period'}</span>
@@ -1680,7 +1662,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
                               </>
                             )}
 
-                            {(book.bookingType as string) === 'restaurant' && (
+                            {book.bookingType === 'restaurants' && (
                               <div className="col-span-3">
                                 <span className="block text-[8px] text-slate-400 font-semibold">{isAr ? 'طلب عشاء طاولة' : 'Dining Table details'}</span>
                                 <span className="text-xs font-black text-slate-800">{d.guestCount || '2'} {isAr ? 'أشخاص على طاولة ممتازة' : 'pax VIP dinner table'}</span>
