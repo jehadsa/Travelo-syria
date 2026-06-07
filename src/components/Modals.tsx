@@ -247,11 +247,7 @@ export const Modals: React.FC<ModalsProps> = ({
             </button>
           </form>
 
-          {/* Seed demo indicator for user convenience */}
-          <div className="mt-4 p-3 bg-slate-50 rounded-xl text-[10px] text-slate-500 border border-slate-200">
-            <span className="font-extrabold text-slate-700 block mb-1">💡 {isAr ? 'حساب تجريبي سريع:' : 'Quick demo accounts:'}</span>
-            <span>email: <strong>jehadsammak5@gmail.com</strong>, pass: <strong>123456</strong></span>
-          </div>
+
 
           <div className="text-center mt-5 pt-4 border-t border-slate-100 text-xs text-slate-500">
             <span>{isAr ? 'ليس لديك حساب؟' : "Don't have an account?"} </span>

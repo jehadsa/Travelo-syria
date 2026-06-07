@@ -150,12 +150,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       if (stored) {
         setCompanies(JSON.parse(stored));
       } else {
-        const defaultCompanies: CompanyAccount[] = [
-          { id: '1', name: 'فندق الشام الكبير', email: 'cham@travelo.sy', phone: '+963 11 223 344', category: 'hotels', active: true },
-          { id: '2', name: 'سيريا كارس لتأجير السيارات', email: 'cars@travelo.sy', phone: '+963 933 111 222', category: 'cars', active: true },
-          { id: '3', name: 'مطعم بوابة دمشق القديمة', email: 'rest@travelo.sy', phone: '+963 11 544 555', category: 'restaurants', active: true },
-          { id: '4', name: 'الشهباء لتأجير الشقق المفروشة', email: 'shaba@travelo.sy', phone: '+963 21 444 555', category: 'apartments', active: true }
-        ];
+        const defaultCompanies: CompanyAccount[] = [];
         localStorage.setItem('travelo_company_accounts', JSON.stringify(defaultCompanies));
         setCompanies(defaultCompanies);
       }

@@ -13,32 +13,7 @@ interface Account {
   pass: string;
 }
 
-const DEFAULT_ACCOUNTS: Account[] = [
-  {
-    user: {
-      name: 'جهاد الصماك',
-      email: 'jehadsammak5@gmail.com',
-      phone: '+963 933 124 556'
-    },
-    pass: '123456'
-  },
-  {
-    user: {
-      name: 'سامي الأحمد',
-      email: 'sami@travelo.com',
-      phone: '+963 944 555 666'
-    },
-    pass: 'sami123'
-  },
-  {
-    user: {
-      name: 'John Doe',
-      email: 'john@travelo.com',
-      phone: '+1 415 888 221'
-    },
-    pass: 'john123'
-  }
-];
+const DEFAULT_ACCOUNTS: Account[] = [];
 
 export function getAccounts(): Account[] {
   const current = localStorage.getItem(KEY_ACCOUNTS);
