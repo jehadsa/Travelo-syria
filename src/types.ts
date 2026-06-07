@@ -7,6 +7,9 @@ export type Language = 'ar' | 'en';
 
 export type Category = 'hotels' | 'cars' | 'restaurants' | 'apartments';
 
+// القيم القديمة اللي بتيجي من بعض الحجوزات المحفوظة
+export type BookingType = Category | 'car' | 'restaurant' | 'holder';
+
 export interface User {
   name: string;
   email: string;
@@ -33,7 +36,7 @@ export interface Trip {
   description_en?: string;
   image: string;
   images: string[];
-  price: string; // numeric string representing cost
+  price: string;
   locationName?: string;
   locationName_en?: string;
   hotelLocation?: string;
@@ -43,7 +46,7 @@ export interface Trip {
   companyName?: string;
   companyName_en?: string;
   companyId?: string;
-  companyPrice?: string;
+  companyPrice?: string; // بيبقى string دايماً
   pendingApproval?: boolean;
   carPriceWithDriver?: string;
   carCostWithDriver?: string;
@@ -59,7 +62,7 @@ export interface Booking {
   tripId: string;
   tripTitle: string;
   tripTitleEn: string;
-  bookingType: Category;
+  bookingType: BookingType; // ← التعديل هون
   userEmail: string;
   date: string;
   status: 'pending' | 'accepted' | 'rejected';
