@@ -25,12 +25,13 @@ import { Toasts } from './components/Toasts';
 import { Modals } from './components/Modals';
 import { AdminPanel } from './components/AdminPanel';
 import { CompanyPortal } from './components/CompanyPortal';
+import { supabase } from './supabaseClient';
 
 export default function App() {
   // Core reactive states
   const [lang, setLang] = useState<Language>('ar');
   const [currentUser, setCurrentUser] = useState<UserType | null>(null);
-  const [trips, setTrips] = useState<Trip[]>(INITIAL_TRIPS);
+  const [trips, setTrips] = useState<Trip[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [accounts, setAccounts] = useState<Account[]>(DEFAULT_ACCOUNTS);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -136,6 +137,30 @@ export default function App() {
       '#0d9488'
     );
   };
+
+  useEffect(() => {
+  const fetchTrips = async () => {
+    const { data, error } = await supabase.from('trips').select('*');
+    if (error) {
+      console.error('Error fetching trips:', error);
+      return;
+    }
+    if (data) setTrips(data as Trip[]);
+  };
+
+  fetchTrips();
+
+  const channel = supabase
+    .channel('trips-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'trips' }, () => {
+      fetchTrips();
+    })
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, []);
 
   // Global Theme (Light/Dark Mode) State
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
