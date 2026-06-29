@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { UserPlus, LogIn, UserCheck, X, Eye, EyeOff, ShieldAlert } from 'lucide-react';
 import { Language, User } from '../types';
-import { verifyAndLogin, saveAccount, updateAccountDetails } from '../authDb';
+import { Account, verifyLogin, saveAccount as saveAccountFn, updateAccountDetails as updateAccountDetailsFn } from '../authDb';
 
 interface ModalsProps {
   lang: Language;
@@ -15,6 +15,8 @@ interface ModalsProps {
   editOpen: boolean;
   authRequiredOpen: boolean;
   currentUser: User | null;
+  accounts: Account[];
+  onUpdateAccounts: (accounts: Account[]) => void;
   onCloseAll: () => void;
   onSetUser: (user: User | null) => void;
   onShowToast: (icon: string, titleAr: string, titleEn: string, bodyAr: string, bodyEn: string, color: string) => void;
@@ -29,6 +31,8 @@ export const Modals: React.FC<ModalsProps> = ({
   editOpen,
   authRequiredOpen,
   currentUser,
+  accounts,
+  onUpdateAccounts,
   onCloseAll,
   onSetUser,
   onShowToast,
@@ -65,7 +69,7 @@ export const Modals: React.FC<ModalsProps> = ({
     e.preventDefault();
     if (!loginEmail || !loginPass) return;
 
-    const loggedUser = verifyAndLogin(loginEmail, loginPass);
+    const loggedUser = verifyLogin(accounts, loginEmail, loginPass);
     if (loggedUser) {
       onSetUser(loggedUser);
       onShowToast(
@@ -93,9 +97,9 @@ export const Modals: React.FC<ModalsProps> = ({
     }
 
     const newUser: User = { name: signupName, email: signupEmail };
-    const success = saveAccount(newUser, signupPass);
-
+    const { success, updatedAccounts } = saveAccountFn(accounts, newUser, signupPass);
     if (success) {
+      onUpdateAccounts(updatedAccounts);
       onSetUser(newUser);
       onShowToast(
         '🎉',
@@ -125,8 +129,9 @@ export const Modals: React.FC<ModalsProps> = ({
       return;
     }
 
-    const updated = updateAccountDetails(currentUser.email, editName, editPass || undefined);
+    const { user: updated, updatedAccounts: newAccounts } = updateAccountDetailsFn(accounts, currentUser.email, editName, editPass || undefined);
     if (updated) {
+      onUpdateAccounts(newAccounts);
       onSetUser(updated);
       onShowToast(
         '👤',

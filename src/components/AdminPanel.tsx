@@ -44,14 +44,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const isAr = lang === 'ar';
   
   // Admin Authentication states
-  const [adminUser, setAdminUser] = useState<{ email: string; roleAr: string; roleEn: string } | null>(() => {
-    try {
-      const saved = sessionStorage.getItem('travelo_admin_session');
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [adminUser, setAdminUser] = useState<{ email: string; roleAr: string; roleEn: string } | null>(null);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -73,7 +66,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     if (found) {
       const userData = { email: found.email, roleAr: found.roleAr, roleEn: found.roleEn };
       setAdminUser(userData);
-      sessionStorage.setItem('travelo_admin_session', JSON.stringify(userData));
       showToast(
         '🔑',
         'تم تسجيل الدخول بنجاح',
@@ -89,7 +81,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const handleAdminLogout = () => {
     setAdminUser(null);
-    sessionStorage.removeItem('travelo_admin_session');
     setLoginEmail('');
     setLoginPassword('');
     showToast(
@@ -143,30 +134,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   // Pending approval prices input state
   const [pendingPriceInput, setPendingPriceInput] = useState<Record<string, string>>({});
 
-  // Load companies
+  // Load companies (in-memory defaults)
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('travelo_company_accounts');
-      if (stored) {
-        setCompanies(JSON.parse(stored));
-      } else {
-        const defaultCompanies: CompanyAccount[] = [
-          { id: '1', name: 'فندق الشام الكبير', email: 'cham@travelo.sy', phone: '+963 11 223 344', category: 'hotels', active: true },
-          { id: '2', name: 'سيريا كارس لتأجير السيارات', email: 'cars@travelo.sy', phone: '+963 933 111 222', category: 'cars', active: true },
-          { id: '3', name: 'مطعم بوابة دمشق القديمة', email: 'rest@travelo.sy', phone: '+963 11 544 555', category: 'restaurants', active: true },
-          { id: '4', name: 'الشهباء لتأجير الشقق المفروشة', email: 'shaba@travelo.sy', phone: '+963 21 444 555', category: 'apartments', active: true }
-        ];
-        localStorage.setItem('travelo_company_accounts', JSON.stringify(defaultCompanies));
-        setCompanies(defaultCompanies);
-      }
-    } catch (e) {
-      console.error(e);
-    }
+    const defaultCompanies: CompanyAccount[] = [
+      { id: '1', name: 'فندق الشام الكبير', email: 'cham@travelo.sy', phone: '+963 11 223 344', category: 'hotels', active: true },
+      { id: '2', name: 'سيريا كارس لتأجير السيارات', email: 'cars@travelo.sy', phone: '+963 933 111 222', category: 'cars', active: true },
+      { id: '3', name: 'مطعم بوابة دمشق القديمة', email: 'rest@travelo.sy', phone: '+963 11 544 555', category: 'restaurants', active: true },
+      { id: '4', name: 'الشهباء لتأجير الشقق المفروشة', email: 'shaba@travelo.sy', phone: '+963 21 444 555', category: 'apartments', active: true }
+    ];
+    setCompanies(defaultCompanies);
   }, []);
 
   const saveCompaniesToStorage = (updated: CompanyAccount[]) => {
     setCompanies(updated);
-    localStorage.setItem('travelo_company_accounts', JSON.stringify(updated));
+    // company accounts managed in-memory
   };
 
   // Profit margins calculation variables
@@ -278,22 +259,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     // Update state & Local storage
     const updatedBookings = bookings.map(b => b.id === bookingId ? { ...b, status: 'accepted' as const } : b);
     setBookings(updatedBookings);
-    localStorage.setItem('travelo_bookings', JSON.stringify(updatedBookings));
+    // bookings persisted via React state (in-memory)
 
     // Emit Notification back to relevant client user
     try {
       const clientMail = booking.userEmail;
-      const cachedNotifsStr = localStorage.getItem(`travelo_notifications_${clientMail}`) || '[]';
-      const parsedNotifs = JSON.parse(cachedNotifsStr);
-      const newNotif = {
-        id: 'acc-admin-' + Math.random().toString(36).slice(2, 9),
-        message: `تهانينا! تم قبول طلب حجزك لـ (${booking.tripTitle}) وتأكيد حجز مرشدكم المخصص لرحلتكم.`,
-        message_en: `Good news! Your reservation for (${booking.tripTitleEn}) has been formally APPROVED by Travelo administration.`,
-        type: 'accepted',
-        read: false,
-        date: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
-      };
-      localStorage.setItem(`travelo_notifications_${clientMail}`, JSON.stringify([newNotif, ...parsedNotifs]));
+      // Notification sent in-memory (no persistence)
     } catch (e) {
       console.error(e);
     }
@@ -318,12 +289,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     // Filter out booking
     const updatedBookings = bookings.filter(b => b.id !== bookingId);
     setBookings(updatedBookings);
-    localStorage.setItem('travelo_bookings', JSON.stringify(updatedBookings));
+    // bookings persisted via React state (in-memory)
 
     // Update Trip reservation status to false so it can be re-booked!
     const localTrips = trips.map(t => t.id === booking.tripId ? { ...t, isBooked: false } : t);
     setTrips(localTrips);
-    localStorage.setItem('travelo_trips', JSON.stringify(localTrips));
+    // trips persisted via React state (in-memory)
 
     showToast(
       '🗑️',
@@ -339,7 +310,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const handleToggleTripBooked = (tripId: string) => {
     const updatedTrips = trips.map(t => t.id === tripId ? { ...t, isBooked: !t.isBooked } : t);
     setTrips(updatedTrips);
-    localStorage.setItem('travelo_trips', JSON.stringify(updatedTrips));
+    // trips persisted via React state (in-memory)
     
     const trip = trips.find(t => t.id === tripId);
     const newStatus = trip ? !trip.isBooked : false;
@@ -359,7 +330,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     if (!window.confirm(isAr ? 'هل أنت متأكد من حذف هذا العرض بالكامل من المنصة؟' : 'Are you sure you want to definitely remove this offer?')) return;
     const updatedTrips = trips.filter(t => t.id !== tripId);
     setTrips(updatedTrips);
-    localStorage.setItem('travelo_trips', JSON.stringify(updatedTrips));
+    // trips persisted via React state (in-memory)
 
     showToast(
       '🗑️',
@@ -392,7 +363,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     });
 
     setTrips(updatedTrips);
-    localStorage.setItem('travelo_trips', JSON.stringify(updatedTrips));
+    // trips persisted via React state (in-memory)
 
     // Notify company simulator / Show Toast
     const trip = trips.find(t => t.id === tripId);
@@ -411,7 +382,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     if (!window.confirm(isAr ? 'هل تود رفض وحذف هذا العرض المقدم؟' : 'Reject and delete this submitted offer?')) return;
     const updatedTrips = trips.filter(t => t.id !== tripId);
     setTrips(updatedTrips);
-    localStorage.setItem('travelo_trips', JSON.stringify(updatedTrips));
+    // trips persisted via React state (in-memory)
 
     showToast(
       '❌',
@@ -464,7 +435,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
     const updatedTrips = trips.map(t => t.id === editingTrip.id ? editingTrip : t);
     setTrips(updatedTrips);
-    localStorage.setItem('travelo_trips', JSON.stringify(updatedTrips));
+    // trips persisted via React state (in-memory)
 
     setEditingTrip(null);
     showToast(
@@ -548,7 +519,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
     const updatedTrips = [newTrip, ...trips];
     setTrips(updatedTrips);
-    localStorage.setItem('travelo_trips', JSON.stringify(updatedTrips));
+    // trips persisted via React state (in-memory)
 
     // Reset Form
     setShowAddForm(false);
@@ -1775,7 +1746,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                               return t;
                             });
                             setTrips(updated);
-                            localStorage.setItem('travelo_trips', JSON.stringify(updated));
+                            // trips managed in-memory
                           }}
                           className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold font-mono focus:border-emerald-500"
                         />
@@ -1795,7 +1766,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                               return t;
                             });
                             setTrips(updated);
-                            localStorage.setItem('travelo_trips', JSON.stringify(updated));
+                            // trips managed in-memory
                           }}
                           className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold font-mono focus:border-emerald-500"
                         />

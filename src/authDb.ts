@@ -3,17 +3,21 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/**
+ * authDb.ts — REFACTORED
+ *
+ * localStorage removed. Accounts now live in-memory only (reset on page refresh).
+ * Real account management happens in App.tsx via inMemoryAccounts state.
+ */
+
 import { User } from './types';
-import { setStoredUser } from './localStorageEngine';
 
-const KEY_ACCOUNTS = 'travelo_accounts';
-
-interface Account {
+export interface Account {
   user: User;
   pass: string;
 }
 
-const DEFAULT_ACCOUNTS: Account[] = [
+export const DEFAULT_ACCOUNTS: Account[] = [
   {
     user: {
       name: 'جهاد الصماك',
@@ -40,52 +44,52 @@ const DEFAULT_ACCOUNTS: Account[] = [
   }
 ];
 
-export function getAccounts(): Account[] {
-  const current = localStorage.getItem(KEY_ACCOUNTS);
-  if (!current) {
-    localStorage.setItem(KEY_ACCOUNTS, JSON.stringify(DEFAULT_ACCOUNTS));
-    return DEFAULT_ACCOUNTS;
-  }
-  try {
-    return JSON.parse(current);
-  } catch {
-    return DEFAULT_ACCOUNTS;
-  }
+/**
+ * These functions now accept an accounts array and return results.
+ * App.tsx manages the actual accounts state.
+ */
+
+export function getAccounts(accounts: Account[] = DEFAULT_ACCOUNTS): Account[] {
+  return accounts;
 }
 
-export function saveAccount(user: User, pass: string): boolean {
-  const accounts = getAccounts();
+export function saveAccount(
+  accounts: Account[],
+  user: User,
+  pass: string
+): { success: boolean; updatedAccounts: Account[] } {
   if (accounts.some(acc => acc.user.email.toLowerCase() === user.email.toLowerCase())) {
-    return false; // already exists
+    return { success: false, updatedAccounts: accounts };
   }
-  const updated = [...accounts, { user, pass }];
-  localStorage.setItem(KEY_ACCOUNTS, JSON.stringify(updated));
-  return true;
+  return { success: true, updatedAccounts: [...accounts, { user, pass }] };
 }
 
-export function verifyAndLogin(email: string, pass: string): User | null {
-  const accounts = getAccounts();
+export function verifyLogin(
+  accounts: Account[],
+  email: string,
+  pass: string
+): User | null {
   const matched = accounts.find(
     acc => acc.user.email.toLowerCase() === email.toLowerCase() && acc.pass === pass
   );
-  if (matched) {
-    setStoredUser(matched.user);
-    return matched.user;
-  }
-  return null;
+  return matched ? matched.user : null;
 }
 
-export function updateAccountDetails(email: string, updatedName: string, updatedPass?: string): User | null {
-  const accounts = getAccounts();
+export function updateAccountDetails(
+  accounts: Account[],
+  email: string,
+  updatedName: string,
+  updatedPass?: string
+): { user: User | null; updatedAccounts: Account[] } {
   const index = accounts.findIndex(acc => acc.user.email.toLowerCase() === email.toLowerCase());
-  if (index === -1) return null;
+  if (index === -1) return { user: null, updatedAccounts: accounts };
 
-  accounts[index].user.name = updatedName;
-  if (updatedPass) {
-    accounts[index].pass = updatedPass;
-  }
+  const updated = [...accounts];
+  updated[index] = {
+    ...updated[index],
+    user: { ...updated[index].user, name: updatedName },
+    pass: updatedPass || updated[index].pass
+  };
 
-  localStorage.setItem(KEY_ACCOUNTS, JSON.stringify(accounts));
-  setStoredUser(accounts[index].user);
-  return accounts[index].user;
+  return { user: updated[index].user, updatedAccounts: updated };
 }

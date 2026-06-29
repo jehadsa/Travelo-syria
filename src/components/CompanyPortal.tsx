@@ -101,41 +101,22 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
   const [showNotifPanel, setShowNotifPanel] = useState(false);
   const [companyNotifications, setCompanyNotifications] = useState<any[]>([]);
 
-  // --- Initial Data Load (LocalStorage Integration) ---
+  // --- Initial Data Load (in-memory) ---
   useEffect(() => {
-    // Load companies
-    try {
-      const stored = localStorage.getItem('travelo_company_accounts');
-      if (stored) {
-        setCompanyAccounts(JSON.parse(stored));
-      } else {
-        const defaultCompanies: CompanyAccount[] = [
-          { id: '1', name: 'فندق الشام الكبير', email: 'cham@travelo.sy', phone: '+963 11 223 344', category: 'hotels', password: '123', active: true },
-          { id: '2', name: 'سيريا كارس لتأجير السيارات', email: 'cars@travelo.sy', phone: '+963 933 111 222', category: 'cars', password: '123', active: true },
-          { id: '3', name: 'مطعم بوابة دمشق القديمة', email: 'rest@travelo.sy', phone: '+963 11 544 555', category: 'restaurants', password: '123', active: true },
-          { id: '4', name: 'الشهباء لتأجير الشقق المفروشة', email: 'shaba@travelo.sy', phone: '+963 21 444 555', category: 'apartments', password: '123', active: true }
-        ];
-        localStorage.setItem('travelo_company_accounts', JSON.stringify(defaultCompanies));
-        setCompanyAccounts(defaultCompanies);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-
-    // Load active logged company (session based or local)
-    try {
-      const active = sessionStorage.getItem('travelo_company_current') || localStorage.getItem('travelo_company_current');
-      if (active) {
-        setCurrentCompany(JSON.parse(active));
-      }
-    } catch (e) {}
+    const defaultCompanies: CompanyAccount[] = [
+      { id: '1', name: 'فندق الشام الكبير', email: 'cham@travelo.sy', phone: '+963 11 223 344', category: 'hotels', password: '123', active: true },
+      { id: '2', name: 'سيريا كارس لتأجير السيارات', email: 'cars@travelo.sy', phone: '+963 933 111 222', category: 'cars', password: '123', active: true },
+      { id: '3', name: 'مطعم بوابة دمشق القديمة', email: 'rest@travelo.sy', phone: '+963 11 544 555', category: 'restaurants', password: '123', active: true },
+      { id: '4', name: 'الشهباء لتأجير الشقق المفروشة', email: 'shaba@travelo.sy', phone: '+963 21 444 555', category: 'apartments', password: '123', active: true }
+    ];
+    setCompanyAccounts(defaultCompanies);
   }, []);
 
   // Sync internal company notifications
   useEffect(() => {
     if (!currentCompany) return;
     try {
-      const adminNotifsStr = localStorage.getItem('travelo_admin_notifications');
+      const adminNotifsStr = null; // notifications managed in-memory
       let parsed: any[] = [];
       if (adminNotifsStr) {
         parsed = JSON.parse(adminNotifsStr);
@@ -170,7 +151,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
       return;
     }
 
-    sessionStorage.setItem('travelo_company_current', JSON.stringify(found));
+    // company session managed in-memory
     setCurrentCompany(found);
     showToast(
       '🏢',
@@ -206,11 +187,11 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
     };
 
     const updated = [...companyAccounts, newAcc];
-    localStorage.setItem('travelo_company_accounts', JSON.stringify(updated));
+    // company accounts managed in-memory
     setCompanyAccounts(updated);
     
     // Auto sign-in
-    sessionStorage.setItem('travelo_company_current', JSON.stringify(newAcc));
+    // company session managed in-memory
     setCurrentCompany(newAcc);
 
     showToast(
@@ -224,8 +205,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem('travelo_company_current');
-    localStorage.removeItem('travelo_company_current');
+    // company session cleared in-memory
     setCurrentCompany(null);
     setActiveTab('offers');
     showToast(
@@ -324,7 +304,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
 
     // Save of trip
     const updatedTrips = [...trips, newTrip];
-    localStorage.setItem('travelo_trips', JSON.stringify(updatedTrips));
+    // trips managed in-memory via React state
     setTrips(updatedTrips);
 
     // Reset Form
@@ -368,7 +348,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
     if (!confirm(isAr ? `هل أنت متأكد من رغبتك في حذف العرض «${name}» نهائياً؟` : `Are you sure you want to delete «${name}» permanently?`)) return;
     
     const updated = trips.filter(t => t.id !== id);
-    localStorage.setItem('travelo_trips', JSON.stringify(updated));
+    // trips managed in-memory via React state
     setTrips(updated);
 
     showToast(
@@ -392,7 +372,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
     const modified = [...trips];
     modified[idx] = editingTrip;
 
-    localStorage.setItem('travelo_trips', JSON.stringify(modified));
+    // trips managed in-memory via React state
     setTrips(modified);
     setEditingTrip(null);
 
@@ -415,7 +395,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
       return b;
     });
 
-    localStorage.setItem('travelo_bookings', JSON.stringify(updated));
+    // bookings managed in-memory via React state
     setBookings(updated);
 
     showToast(
@@ -438,25 +418,13 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
       return b;
     });
 
-    localStorage.setItem('travelo_bookings', JSON.stringify(updated));
+    // bookings managed in-memory via React state
     setBookings(updated);
 
     // Push notification to notifications center of that user
     try {
       const userMail = clientEmail || 'client';
-      const userNotifsStr = localStorage.getItem('travelo_notifications_custom') || '[]';
-      const parsedUserNotifs: any[] = JSON.parse(userNotifsStr);
-      
-      const newNotif = {
-        id: 'cl-rej-' + Math.random().toString(36).slice(2, 9),
-        userEmail: userMail,
-        message: `❌ تم رفض حجزك على «${tripName}» من قبل الشركة العارضة لعدم كفاية الشروط.`,
-        message_en: `❌ Your listing lease for «${tripName}» was rejected by the partner company.`,
-        read: false,
-        date: new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US')
-      };
-      
-      localStorage.setItem('travelo_notifications_custom', JSON.stringify([...parsedUserNotifs, newNotif]));
+      // user notifications managed in-memory
     } catch (e) {}
 
     showToast(
@@ -473,7 +441,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
     if (!confirm(isAr ? 'هل أنت متأكد من حذف هذا السجل بشكل دائم؟' : 'Are you sure you want to purge this record?')) return;
     
     const updated = bookings.filter(b => b.id !== bId);
-    localStorage.setItem('travelo_bookings', JSON.stringify(updated));
+    // bookings managed in-memory via React state
     setBookings(updated);
 
     showToast(
@@ -489,10 +457,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
   // Mark company notifications as read
   const handleMarkNotifRead = (id: string) => {
     try {
-      const adminNotifsStr = localStorage.getItem('travelo_admin_notifications') || '[]';
-      const parsed: any[] = JSON.parse(adminNotifsStr);
-      const updated = parsed.map(n => n.id === id ? { ...n, read: true } : n);
-      localStorage.setItem('travelo_admin_notifications', JSON.stringify(updated));
+      // admin notifications managed in-memory
       
       const companyTripTitles = trips.filter(t => t.companyId === currentCompany?.id).map(t => t.title);
       const filtered = updated.filter(n => companyTripTitles.includes(n.trip) || n.companyId === currentCompany?.id);
@@ -502,17 +467,7 @@ export const CompanyPortal: React.FC<CompanyPortalProps> = ({
 
   const handleMarkAllNotifsRead = () => {
     try {
-      const adminNotifsStr = localStorage.getItem('travelo_admin_notifications') || '[]';
-      const parsed: any[] = JSON.parse(adminNotifsStr);
-      const companyTripTitles = trips.filter(t => t.companyId === currentCompany?.id).map(t => t.title);
-      
-      const updated = parsed.map(n => {
-        if (companyTripTitles.includes(n.trip) || n.companyId === currentCompany?.id) {
-          return { ...n, read: true };
-        }
-        return n;
-      });
-      localStorage.setItem('travelo_admin_notifications', JSON.stringify(updated));
+      // admin notifications managed in-memory
       
       const filtered = updated.filter(n => companyTripTitles.includes(n.trip) || n.companyId === currentCompany?.id);
       setCompanyNotifications(filtered);

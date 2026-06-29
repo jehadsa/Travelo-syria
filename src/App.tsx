@@ -13,13 +13,8 @@ import {
 
 import { Language, User as UserType, Trip, Booking, Notification, ToastMessage } from './types';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  getStoredLanguage, setStoredLanguage, 
-  getStoredUser, setStoredUser,
-  getStoredTrips, updateStoredTripBooking,
-  getStoredBookings, addStoredBooking,
-  getStoredNotifications, setNotificationRead, markAllNotificationsRead, clearAllStoredNotifications, addStoredNotification
-} from './localStorageEngine';
+import { INITIAL_TRIPS } from './data';
+import { Account, DEFAULT_ACCOUNTS } from './authDb';
 
 // Subcomponents
 import { AboutUs } from './components/AboutUs';
@@ -33,10 +28,11 @@ import { CompanyPortal } from './components/CompanyPortal';
 
 export default function App() {
   // Core reactive states
-  const [lang, setLang] = useState<Language>(getStoredLanguage());
-  const [currentUser, setCurrentUser] = useState<UserType | null>(getStoredUser());
-  const [trips, setTrips] = useState<Trip[]>(getStoredTrips());
-  const [bookings, setBookings] = useState<Booking[]>(getStoredBookings());
+  const [lang, setLang] = useState<Language>('ar');
+  const [currentUser, setCurrentUser] = useState<UserType | null>(null);
+  const [trips, setTrips] = useState<Trip[]>(INITIAL_TRIPS);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>(DEFAULT_ACCOUNTS);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [activePage, setActivePage] = useState<'home' | 'admin' | 'company'>('home');
@@ -95,38 +91,15 @@ export default function App() {
   const [showAllApartments, setShowAllApartments] = useState(false);
 
   // Favorites persistence state
-  const [favorites, setFavorites] = useState<string[]>(() => {
-    try {
-      const stored = localStorage.getItem('travelo_favorites');
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  // Sync favorites changes to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem('travelo_favorites', JSON.stringify(favorites));
-    } catch (e) {
-      console.error('Error writing favorites to localStorage', e);
-    }
-  }, [favorites]);
+  const [favorites, setFavorites] = useState<string[]>([]);
 
   // Reviews dynamic state corresponding to unique listings
-  const [reviews, setReviews] = useState<any[]>(() => {
-    try {
-      const stored = localStorage.getItem('travelo_reviews');
-      if (stored) return JSON.parse(stored);
-    } catch (e) {}
-    // default reviews list or empty
-    return [
-      { id: 'rev-1', tripId: '1', userName: 'أحمد علي', rating: 5, comment: 'فندق مذهل وإطلالة ساحرة جداً غاية في الهدوء والرفاهية. الخدمة سريعة وممتازة والأسرة في غاية الراحة والنظافة.', date: '2026-05-12' },
-      { id: 'rev-2', tripId: '1', userName: 'ريم السعيد', rating: 4, comment: 'فندق جميل وهادئ، الغرفة كانت نظيفة جداً والمعاملة راقية واستمتعنا كثيراً بإقامتنا هنا وبالمرافق الفاخرة المتاحة.', date: '2026-05-20' },
-      { id: 'rev-3', tripId: '2', userName: 'محمد الحمصي', rating: 5, comment: 'سيارة نظيفة وجاهزة تماماً، وسرعة في استكمال الإجراءات والمعاملة احترافية جداً ومريحة لأبعد الحدود.', date: '2026-05-25' },
-      { id: 'rev-4', tripId: '3', userName: 'سارة دمشق', rating: 5, comment: 'أجواء دمشقية تقليدية ساحرة، والطعام شهي ومميز وخاصة الفتة الشامية واللحوم المشوية رائعة ومذهلة!', date: '2026-05-28' },
-    ];
-  });
+  const [reviews, setReviews] = useState<any[]>([
+      { id: 'rev-1', tripId: '1', userName: 'أحمد علي', rating: 5, comment: 'فندق مذهل وإطلالة ساحرة جداً غاية في الهدوء والرفاهية.', date: '2026-05-12' },
+      { id: 'rev-2', tripId: '1', userName: 'ريم السعيد', rating: 4, comment: 'فندق جميل وهادئ، الغرفة كانت نظيفة جداً والمعاملة راقية.', date: '2026-05-20' },
+      { id: 'rev-3', tripId: '2', userName: 'محمد الحمصي', rating: 5, comment: 'سيارة نظيفة وجاهزة تماماً، ومعاملة احترافية جداً.', date: '2026-05-25' },
+      { id: 'rev-4', tripId: '3', userName: 'سارة دمشق', rating: 5, comment: 'أجواء دمشقية تقليدية ساحرة، والطعام شهي ومميز!', date: '2026-05-28' },
+    ]);
 
   // State fields for the active review input form
   const [newReviewName, setNewReviewName] = useState('');
@@ -148,7 +121,6 @@ export default function App() {
 
     const updatedReviews = [newRatingItem, ...reviews];
     setReviews(updatedReviews);
-    localStorage.setItem('travelo_reviews', JSON.stringify(updatedReviews));
 
     // Reset fields
     setNewReviewName('');
@@ -166,17 +138,7 @@ export default function App() {
   };
 
   // Global Theme (Light/Dark Mode) State
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    try {
-      const stored = localStorage.getItem('travelo_theme');
-      if (stored === 'light' || stored === 'dark') {
-        return stored;
-      }
-      return 'light';
-    } catch {
-      return 'light';
-    }
-  });
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   const toggleTheme = () => {
     const nextTheme = theme === 'light' ? 'dark' : 'light';
@@ -191,13 +153,8 @@ export default function App() {
     );
   };
 
-  // Sync theme selection to document element (Tailwind dark class) & localStorage
+  // Sync theme selection to document element (Tailwind dark class)
   useEffect(() => {
-    try {
-      localStorage.setItem('travelo_theme', theme);
-    } catch (e) {
-      console.error('Error writing theme to localStorage', e);
-    }
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
@@ -209,9 +166,9 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = lang;
-    setStoredLanguage(lang);
+    // language state managed in-memory
     if (currentUser) {
-      setNotifications(getStoredNotifications());
+      setNotifications([]); // notifications managed in-memory
     }
   }, [lang, currentUser]);
 
@@ -301,22 +258,8 @@ export default function App() {
     }
   }, [selectedTrip]);
 
-  // Sync separate tabs / standalone page changes in real-time
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'travelo_trips') {
-        setTrips(getStoredTrips());
-      }
-      if (e.key === 'travelo_bookings') {
-        setBookings(getStoredBookings());
-      }
-      if (e.key === 'travelo_user') {
-        setCurrentUser(getStoredUser());
-      }
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  // No cross-tab sync needed (localStorage removed)
+  // Cross-tab sync via storage events is no longer applicable.
 
   // Scroll Lock effect for overlays and modals (locks main page background scroll)
   useEffect(() => {
@@ -351,11 +294,11 @@ export default function App() {
   // Set default account login status inside state
   const handleSetUser = (user: UserType | null) => {
     setCurrentUser(user);
-    setStoredUser(user);
+    // user stored in-memory via React state
     if (!user) {
       setNotifications([]);
     } else {
-      setNotifications(getStoredNotifications());
+      setNotifications([]); // notifications managed in-memory
     }
   };
 
@@ -476,7 +419,7 @@ export default function App() {
 
   const handleLogout = () => {
     handleSetUser(null);
-    setStoredUser(null);
+    // user cleared in-memory via React state
     handleShowToast(
       '👋',
       'تم تسجيل الخروج',
@@ -489,18 +432,15 @@ export default function App() {
   };
 
   const handleMarkRead = (notifId: string) => {
-    const updated = setNotificationRead(notifId);
-    setNotifications(updated);
+    setNotifications(prev => prev.map(n => n.id === notifId ? { ...n, read: true } : n));
   };
 
   const handleReadAll = () => {
-    const updated = markAllNotificationsRead();
-    setNotifications(updated);
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   };
 
   const handleClearNotifs = () => {
-    const updated = clearAllStoredNotifications();
-    setNotifications(updated);
+    setNotifications([]);
   };
 
   // Book trigger directly from cards or details popup
@@ -609,10 +549,9 @@ export default function App() {
       }
     };
 
-    // Save and flag trip catalog as reserved
-    const updatedBookings = addStoredBooking(newBooking);
-    setBookings(updatedBookings);
-    setTrips(getStoredTrips()); // Reload trips to show reserved flags
+    // Save booking in-memory and mark trip as booked
+    setBookings(prev => [...prev, newBooking]);
+    setTrips(prev => prev.map(t => t.id === newBooking.tripId ? { ...t, isBooked: true } : t));
 
     // Spawn notification and success toast
     handleShowToast(
@@ -636,10 +575,9 @@ export default function App() {
         date: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
       };
       
-      // Persist welcome simulation notification
-      addStoredNotification(acceptNotif);
+      // Add notification in-memory
       if (currentUser && currentUser.email === userMail) {
-        setNotifications(getStoredNotifications());
+        setNotifications(prev => [acceptNotif, ...prev]);
         handleShowToast(
           '✅',
           'موافقة على الحجز!',
@@ -2817,6 +2755,8 @@ export default function App() {
         editOpen={editProfileOpen}
         authRequiredOpen={authRequiredOpen}
         currentUser={currentUser}
+        accounts={accounts}
+        onUpdateAccounts={setAccounts}
         onCloseAll={() => { setLoginModalOpen(false); setSignupModalOpen(false); setEditProfileOpen(false); setAuthRequiredOpen(false); }}
         onSetUser={handleSetUser}
         onShowToast={handleShowToast}
